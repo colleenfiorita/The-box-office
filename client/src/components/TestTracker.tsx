@@ -1,7 +1,7 @@
 import { StatusBadge } from "@/components/StatusBadge";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Beaker, ChevronRight, Users } from "lucide-react";
+import { Beaker, ChevronRight, ExternalLink, Mail, Users } from "lucide-react";
 import { useState } from "react";
 import type { Test } from "@/data/dashboardData";
 
@@ -94,7 +94,14 @@ export function TestTracker({ tests, filter }: TestTrackerProps) {
                 {test.clientEmail && (
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Contact</p>
-                    <p className="text-muted-foreground mt-0.5">{test.clientEmail}</p>
+                    <a
+                      href={`mailto:${test.clientEmail}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="mt-0.5 inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                      <Mail className="h-3 w-3" />
+                      {test.clientEmail}
+                    </a>
                   </div>
                 )}
                 <div className="flex gap-4">
@@ -110,6 +117,19 @@ export function TestTracker({ tests, filter }: TestTrackerProps) {
                 <div>
                   <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Summary</p>
                   <p className="text-muted-foreground mt-0.5 leading-relaxed">{test.snippet}</p>
+                </div>
+                {/* Open in Gmail link */}
+                <div className="pt-2 border-t border-border/20">
+                  <a
+                    href={test.gmailLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-1.5 rounded-md bg-purple-500/10 border border-purple-500/20 px-3 py-1.5 text-[11px] font-medium text-purple-300 hover:bg-purple-500/20 hover:text-purple-200 transition-all"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    Open in Gmail
+                  </a>
                 </div>
               </div>
             </motion.div>

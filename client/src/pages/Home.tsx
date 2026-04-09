@@ -1,5 +1,5 @@
 /*
- * Mission Control Dashboard — Home Page
+ * The Box Office — Ticket & Test Tracker Dashboard
  * Design: Dark aerospace command center aesthetic
  * Typography: Outfit (headings) + JetBrains Mono (data)
  */
@@ -96,7 +96,7 @@ export default function Home() {
               </div>
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-foreground font-sans">
-                  Mission Control
+                  The Box Office
                 </h1>
                 <p className="text-xs text-muted-foreground font-mono">
                   colleenfiorita@meta.com

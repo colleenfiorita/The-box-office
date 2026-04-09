@@ -18,6 +18,7 @@ export interface Ticket {
   messageCount: number;
   priority: "Critical" | "High" | "Medium" | "Low";
   snippet: string;
+  gmailLink: string;
 }
 
 export interface Test {
@@ -32,6 +33,7 @@ export interface Test {
   lastActivity: string;
   messageCount: number;
   snippet: string;
+  gmailLink: string;
 }
 
 export interface Task {
@@ -43,6 +45,7 @@ export interface Task {
   priority: string;
   creationDate: string;
   tags: string[];
+  taskLink: string;
 }
 
 export const tickets: Ticket[] = [
@@ -59,7 +62,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-04-09",
     messageCount: 4,
     priority: "High",
-    snippet: "Experiencing login issues on Facebook account, 2FA escalated to internal team"
+    snippet: "Experiencing login issues on Facebook account, 2FA escalated to internal team",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/782580541104314"
   },
   {
     id: "1505820577950967",
@@ -74,7 +78,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-04-09",
     messageCount: 3,
     priority: "Medium",
-    snippet: "Detailed response regarding IG Shops discount code issue, partnership acknowledgment"
+    snippet: "Detailed response regarding IG Shops discount code issue, partnership acknowledgment",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/1505820577950967"
   },
   {
     id: "1273484327485280",
@@ -89,7 +94,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-04-07",
     messageCount: 4,
     priority: "Medium",
-    snippet: "Ongoing support ticket with Fisher-Price team"
+    snippet: "Ongoing support ticket with Fisher-Price team",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/1273484327485280"
   },
   {
     id: "725370610663009",
@@ -104,7 +110,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-04-06",
     messageCount: 3,
     priority: "Medium",
-    snippet: "TSC Mid-Market support form for Harry's regarding ads creation and editing issues"
+    snippet: "TSC Mid-Market support form for Harry's regarding ads creation and editing issues",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/725370610663009"
   },
   {
     id: "923349626691781",
@@ -119,7 +126,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-04-06",
     messageCount: 2,
     priority: "Critical",
-    snippet: "Severe unauthorized overspend issue, escalated and resolved"
+    snippet: "Severe unauthorized overspend issue, escalated and resolved",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/923349626691781"
   },
   {
     id: "928083323347807",
@@ -134,7 +142,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-04-05",
     messageCount: 1,
     priority: "Low",
-    snippet: "Follow-up support case, resolved"
+    snippet: "Follow-up support case, resolved",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/928083323347807"
   },
   {
     id: "1418603982922161",
@@ -149,7 +158,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-04-02",
     messageCount: 3,
     priority: "Critical",
-    snippet: "Business Manager 454804858603592 recovered and secured, checking ad account 1437498831257462 restriction"
+    snippet: "Business Manager 454804858603592 recovered and secured, checking ad account 1437498831257462 restriction",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/1418603982922161"
   },
   {
     id: "1184957456938914",
@@ -164,7 +174,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-03-30",
     messageCount: 2,
     priority: "High",
-    snippet: "User account restricted, awaiting additional information from support"
+    snippet: "User account restricted, awaiting additional information from support",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/1184957456938914"
   },
   {
     id: "1995874717946390",
@@ -179,7 +190,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-04-01",
     messageCount: 2,
     priority: "High",
-    snippet: "Invoice revocation request, next steps needed ASAP"
+    snippet: "Invoice revocation request, next steps needed ASAP",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/1995874717946390"
   },
   {
     id: "1256279939984412",
@@ -194,7 +206,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-03-29",
     messageCount: 2,
     priority: "Critical",
-    snippet: "Hacked asset case, successfully resolved"
+    snippet: "Hacked asset case, successfully resolved",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/1256279939984412"
   },
   {
     id: "1123146713272447",
@@ -209,7 +222,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-03-26",
     messageCount: 2,
     priority: "High",
-    snippet: "Facebook account disabled, unable to accept Red Bull invitation"
+    snippet: "Facebook account disabled, unable to accept Red Bull invitation",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/1123146713272447"
   },
   {
     id: "1981554675759311",
@@ -224,7 +238,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-03-21",
     messageCount: 1,
     priority: "Medium",
-    snippet: "Account restriction case, under review"
+    snippet: "Account restriction case, under review",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/1981554675759311"
   },
   {
     id: "26361802563432873",
@@ -239,7 +254,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-03-13",
     messageCount: 5,
     priority: "Medium",
-    snippet: "Meta access issue, call scheduled with support"
+    snippet: "Meta access issue, call scheduled with support",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/26361802563432873"
   },
   {
     id: "1530365311933727",
@@ -254,7 +270,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-03-11",
     messageCount: 2,
     priority: "Medium",
-    snippet: "Catalog-related support for Monday Swimwear"
+    snippet: "Catalog-related support for Monday Swimwear",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/1530365311933727"
   },
   {
     id: "932333975862439",
@@ -269,7 +286,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-03-09",
     messageCount: 2,
     priority: "Low",
-    snippet: "Instagram notable blue badge request for Polly brand"
+    snippet: "Instagram notable blue badge request for Polly brand",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/932333975862439"
   },
   {
     id: "1078378595350225",
@@ -284,7 +302,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-03-06",
     messageCount: 3,
     priority: "High",
-    snippet: "Ad continued serving despite being turned off, billing concern"
+    snippet: "Ad continued serving despite being turned off, billing concern",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/1078378595350225"
   },
   {
     id: "1981129182440258",
@@ -299,7 +318,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-03-12",
     messageCount: 1,
     priority: "Low",
-    snippet: "Waiting for additional information to assist"
+    snippet: "Waiting for additional information to assist",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/1981129182440258"
   },
   {
     id: "828769470257421",
@@ -314,7 +334,8 @@ export const tickets: Ticket[] = [
     lastActivity: "2026-03-15",
     messageCount: 1,
     priority: "Low",
-    snippet: "General support inquiry"
+    snippet: "General support inquiry",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/828769470257421"
   }
 ];
 
@@ -330,7 +351,8 @@ export const tests: Test[] = [
     firstDate: "2026-04-09",
     lastActivity: "2026-04-09",
     messageCount: 1,
-    snippet: "Mentioned in A/B Testing Questions & Feedback group, action requested"
+    snippet: "Mentioned in A/B Testing Questions & Feedback group, action requested",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/A%2FB+Testing+Questions+Feedback"
   },
   {
     id: "t-shopify-beta",
@@ -343,7 +365,8 @@ export const tests: Test[] = [
     firstDate: "2026-04-09",
     lastActivity: "2026-04-09",
     messageCount: 1,
-    snippet: "Shopify beta expansion, reaching out to advertisers for AI Checkout recruitment"
+    snippet: "Shopify beta expansion, reaching out to advertisers for AI Checkout recruitment",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Shopify+AI+Checkout+Beta+Test"
   },
   {
     id: "t-awareness-momofuku",
@@ -356,7 +379,8 @@ export const tests: Test[] = [
     firstDate: "2026-03-15",
     lastActivity: "2026-03-20",
     messageCount: 4,
-    snippet: "Awareness test recommendations for Momofuku, results delivered"
+    snippet: "Awareness test recommendations for Momofuku, results delivered",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Awareness+Test+Recommendations+Momofuku"
   },
   {
     id: "t-shops-beta-booyah",
@@ -369,7 +393,8 @@ export const tests: Test[] = [
     firstDate: "2026-02-20",
     lastActivity: "2026-03-10",
     messageCount: 4,
-    snippet: "Booyah invited to participate in Shops Ads + App beta test"
+    snippet: "Booyah invited to participate in Shops Ads + App beta test",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Shops+Ads+App+Beta+Test+Booyah"
   },
   {
     id: "t-pltv-blackcrow",
@@ -382,7 +407,8 @@ export const tests: Test[] = [
     firstDate: "2025-10-01",
     lastActivity: "2025-11-15",
     messageCount: 4,
-    snippet: "pLTV beta test update, results concluded"
+    snippet: "pLTV beta test update, results concluded",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/pLTV+Beta+Test+Update+BlackCrow"
   },
   {
     id: "t-meta-overspend",
@@ -395,7 +421,8 @@ export const tests: Test[] = [
     firstDate: "2026-03-01",
     lastActivity: "2026-03-15",
     messageCount: 4,
-    snippet: "Investigating test overspending issue for Harry's"
+    snippet: "Investigating test overspending issue for Harry's",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Meta+Test+Overspending+Harry%27s"
   },
   {
     id: "t-voice-ai-lovepop",
@@ -408,7 +435,8 @@ export const tests: Test[] = [
     firstDate: "2026-02-15",
     lastActivity: "2026-03-05",
     messageCount: 3,
-    snippet: "Fully funded $25k test for Meta Voice AI on Ads with Lovepop Cards"
+    snippet: "Fully funded $25k test for Meta Voice AI on Ads with Lovepop Cards",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Meta+Voice+AI+Ads+Lovepop"
   },
   {
     id: "t-pltv-collars",
@@ -421,7 +449,8 @@ export const tests: Test[] = [
     firstDate: "2025-09-01",
     lastActivity: "2026-01-15",
     messageCount: 3,
-    snippet: "pLTV optimization test advertiser eligibility screening"
+    snippet: "pLTV optimization test advertiser eligibility screening",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/pLTV+Optimization+Collars+Co+BlackCrow"
   },
   {
     id: "t-sticker-ads",
@@ -434,7 +463,8 @@ export const tests: Test[] = [
     firstDate: "2026-01-10",
     lastActivity: "2026-02-20",
     messageCount: 4,
-    snippet: "Sticker Ads test with Spark Foundry"
+    snippet: "Sticker Ads test with Spark Foundry",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Sticker+Ads+Test+Spark+Foundry"
   },
   {
     id: "t-q3-opportunity",
@@ -447,7 +477,8 @@ export const tests: Test[] = [
     firstDate: "2025-08-01",
     lastActivity: "2025-09-15",
     messageCount: 4,
-    snippet: "Q3 test opportunity discussion with Fallon"
+    snippet: "Q3 test opportunity discussion with Fallon",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Q3+Test+Opportunity+Fallon"
   },
   {
     id: "t-reels-trending",
@@ -460,7 +491,8 @@ export const tests: Test[] = [
     firstDate: "2025-07-15",
     lastActivity: "2025-08-30",
     messageCount: 4,
-    snippet: "Reels Trending Ads beta test with Hearts & Science"
+    snippet: "Reels Trending Ads beta test with Hearts & Science",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Reels+Trending+Ads+Beta+Hearts+Science"
   },
   {
     id: "t-reels-trending-spark",
@@ -473,7 +505,8 @@ export const tests: Test[] = [
     firstDate: "2025-07-15",
     lastActivity: "2025-08-25",
     messageCount: 4,
-    snippet: "Reels Trending Ads beta test with Spark Foundry"
+    snippet: "Reels Trending Ads beta test with Spark Foundry",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Reels+Trending+Ads+Beta+Spark+Foundry"
   },
   {
     id: "t-heavy-up",
@@ -486,7 +519,8 @@ export const tests: Test[] = [
     firstDate: "2025-06-01",
     lastActivity: "2025-07-15",
     messageCount: 4,
-    snippet: "Heavy Up test comparing control vs test markets"
+    snippet: "Heavy Up test comparing control vs test markets",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Heavy+Up+Test+Control+Test+Markets"
   },
   {
     id: "t-ab-creative",
@@ -499,7 +533,8 @@ export const tests: Test[] = [
     firstDate: "2025-05-01",
     lastActivity: "2025-06-15",
     messageCount: 4,
-    snippet: "A/B creative test with Fallon agency"
+    snippet: "A/B creative test with Fallon agency",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Meta+A%2FB+Creative+Test+Fallon"
   },
   {
     id: "t-baby-jergens",
@@ -512,7 +547,8 @@ export const tests: Test[] = [
     firstDate: "2025-04-01",
     lastActivity: "2025-05-15",
     messageCount: 4,
-    snippet: "Value Rules test for Baby Jergens brand"
+    snippet: "Value Rules test for Baby Jergens brand",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Baby+Jergens+Value+Rules+Test"
   },
   {
     id: "t-oribe-upper",
@@ -525,7 +561,8 @@ export const tests: Test[] = [
     firstDate: "2025-07-07",
     lastActivity: "2025-07-08",
     messageCount: 2,
-    snippet: "Upper funnel testing discussion for Oribe brand"
+    snippet: "Upper funnel testing discussion for Oribe brand",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/Oribe+Upper+Funnel+Test"
   },
   {
     id: "t-dvf-coupon",
@@ -538,7 +575,8 @@ export const tests: Test[] = [
     firstDate: "2025-10-20",
     lastActivity: "2025-11-10",
     messageCount: 4,
-    snippet: "MPA test recommendations and coupon request for DVF"
+    snippet: "MPA test recommendations and coupon request for DVF",
+    gmailLink: "https://mail.google.com/mail/u/0/#search/MPA+Test+Recommendations+Coupon+DVF"
   }
 ];
 
@@ -551,7 +589,8 @@ export const tasks: Task[] = [
     progress: "In Progress",
     priority: "Medium",
     creationDate: "2026-04-06",
-    tags: ["CDS Enablement", "MQDT", "DMO regional query"]
+    tags: ["CDS Enablement", "MQDT", "DMO regional query"],
+    taskLink: "https://www.internalfb.com/tasks/?t=263453022"
   },
   {
     taskNumber: "T251422328",
@@ -561,7 +600,8 @@ export const tasks: Task[] = [
     progress: "No Progress",
     priority: "High",
     creationDate: "2026-01-13",
-    tags: ["oncall", "escalate", "access-unmanaged", "executiveservices"]
+    tags: ["oncall", "escalate", "access-unmanaged", "executiveservices"],
+    taskLink: "https://www.internalfb.com/tasks/?t=251422328"
   },
   {
     taskNumber: "T236849343",
@@ -571,7 +611,8 @@ export const tasks: Task[] = [
     progress: "No Progress",
     priority: "Medium",
     creationDate: "2025-09-03",
-    tags: ["Strategic", "Test Design", "measurement SME"]
+    tags: ["Strategic", "Test Design", "measurement SME"],
+    taskLink: "https://www.internalfb.com/tasks/?t=236849343"
   }
 ];
 

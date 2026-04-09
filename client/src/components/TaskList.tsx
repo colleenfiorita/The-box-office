@@ -1,7 +1,7 @@
 import { StatusBadge } from "@/components/StatusBadge";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { ClipboardList, Tag } from "lucide-react";
+import { ClipboardList, ExternalLink, Tag } from "lucide-react";
 import type { Task } from "@/data/dashboardData";
 
 interface TaskListProps {
@@ -25,14 +25,25 @@ export function TaskList({ tasks }: TaskListProps) {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-mono text-[10px] text-muted-foreground">
+                <a
+                  href={task.taskLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-[10px] text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-0.5"
+                >
                   {task.taskNumber}
-                </span>
+                  <ExternalLink className="h-2.5 w-2.5" />
+                </a>
                 <StatusBadge status={task.progress} size="sm" />
               </div>
-              <p className="text-xs font-medium text-foreground leading-snug">
+              <a
+                href={task.taskLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-medium text-foreground leading-snug hover:text-blue-300 transition-colors block"
+              >
                 {task.title}
-              </p>
+              </a>
               <div className="mt-1.5 flex items-center gap-2 text-[10px] text-muted-foreground">
                 <span>{task.owner}</span>
                 <span>·</span>

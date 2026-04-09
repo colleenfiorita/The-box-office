@@ -1,7 +1,7 @@
 import { StatusBadge, PriorityBadge } from "@/components/StatusBadge";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { ChevronDown, ChevronUp, ExternalLink, MessageSquare } from "lucide-react";
+import { ChevronDown, ChevronUp, ExternalLink, Mail, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import type { Ticket } from "@/data/dashboardData";
 
@@ -135,10 +135,14 @@ export function TicketTable({ tickets, filter }: TicketTableProps) {
                     <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Client Details</p>
                     <p className="text-foreground">{ticket.client}</p>
                     {ticket.clientEmail && (
-                      <p className="text-muted-foreground flex items-center gap-1 mt-0.5">
+                      <a
+                        href={`mailto:${ticket.clientEmail}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-0.5 inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
+                      >
+                        <Mail className="h-3 w-3" />
                         {ticket.clientEmail}
-                        <ExternalLink className="h-3 w-3" />
-                      </p>
+                      </a>
                     )}
                     <p className="text-muted-foreground mt-0.5">{ticket.clientCompany}</p>
                   </div>
@@ -153,6 +157,19 @@ export function TicketTable({ tickets, filter }: TicketTableProps) {
                   <div>
                     <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Opened</p>
                     <p className="font-mono text-foreground">{ticket.firstDate}</p>
+                  </div>
+                  {/* Open in Gmail link */}
+                  <div className="col-span-2 pt-2 border-t border-border/20">
+                    <a
+                      href={ticket.gmailLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-[11px] font-medium text-blue-300 hover:bg-blue-500/20 hover:text-blue-200 transition-all"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      Open in Gmail
+                    </a>
                   </div>
                 </div>
               </motion.div>
