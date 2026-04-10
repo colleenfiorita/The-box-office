@@ -22,3 +22,6 @@
 - [x] Add loading state for API data fetching
 - [x] Write vitest tests for all dashboard API routes (6 tests passing)
 - [x] Set up hourly scheduled sync task (via Manus scheduled task)
+- [x] Brand filter dropdown in header to filter all views by company/brand
+- [x] CSV export button to download current filtered view as spreadsheet
+- [ ] CRM integration to enrich brand data with deal stage, revenue, account owner (on hold)

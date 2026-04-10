@@ -15,17 +15,21 @@ import { motion } from "framer-motion";
 import {
   AlertTriangle,
   Beaker,
+  Building2,
   CheckCircle2,
+  ChevronDown,
   ClipboardList,
   Clock,
+  Download,
   Inbox,
   Loader2,
   Radio,
   RefreshCw,
   Search,
   Ticket as TicketIcon,
+  X,
 } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663323892800/YAkPu6UgiYsd9GDQL38Xuz/hero-bg-AromJnbsnWj7U7CATfvCyu.webp";
 
@@ -74,6 +78,28 @@ type TaskRow = {
   tags: string[];
   taskLink: string | null;
 };
+
+// ---- CSV Export Utility ----
+function downloadCSV(filename: string, headers: string[], rows: string[][]) {
+  const escape = (val: string) => {
+    if (val.includes(",") || val.includes('"') || val.includes("\n")) {
+      return `"${val.replace(/"/g, '""')}"`;
+    }
+    return val;
+  };
+  const csvContent = [
+    headers.map(escape).join(","),
+    ...rows.map(row => row.map(escape).join(",")),
+  ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function Home() {
   // Fetch data from API with auto-refresh every 5 minutes
@@ -147,55 +173,100 @@ export default function Home() {
     }));
   }, [tasksRaw]);
 
-  // Compute stats from live data
+  // ---- Brand filter state ----
+  const [selectedBrand, setSelectedBrand] = useState<string>("all");
+  const [brandDropdownOpen, setBrandDropdownOpen] = useState(false);
+  const brandDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (brandDropdownRef.current && !brandDropdownRef.current.contains(e.target as Node)) {
+        setBrandDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Collect all unique brands/companies from both tickets and tests
+  const allBrands = useMemo(() => {
+    const brandSet = new Set<string>();
+    tickets.forEach(t => {
+      if (t.clientCompany) brandSet.add(t.clientCompany);
+    });
+    tests.forEach(t => {
+      if (t.brand) brandSet.add(t.brand);
+    });
+    return Array.from(brandSet).sort((a, b) => a.localeCompare(b));
+  }, [tickets, tests]);
+
+  // Apply brand filter to tickets and tests
+  const brandFilteredTickets = useMemo(() => {
+    if (selectedBrand === "all") return tickets;
+    return tickets.filter(t => (t.clientCompany ?? "").toLowerCase() === selectedBrand.toLowerCase());
+  }, [tickets, selectedBrand]);
+
+  const brandFilteredTests = useMemo(() => {
+    if (selectedBrand === "all") return tests;
+    return tests.filter(t => (t.brand ?? "").toLowerCase() === selectedBrand.toLowerCase());
+  }, [tests, selectedBrand]);
+
+  // Compute stats from brand-filtered data
   const stats = useMemo(() => {
-    const openTickets = tickets.filter(t => t.status === "Open").length;
-    const pendingTickets = tickets.filter(t => t.status === "Pending").length;
-    const resolvedTickets = tickets.filter(t => t.status === "Resolved").length;
-    const criticalTickets = tickets.filter(t => t.priority === "Critical" && t.status !== "Resolved").length;
-    const activeTests = tests.filter(t => t.status === "Active").length;
-    const completedTests = tests.filter(t => t.status === "Completed").length;
+    const openTickets = brandFilteredTickets.filter(t => t.status === "Open").length;
+    const pendingTickets = brandFilteredTickets.filter(t => t.status === "Pending").length;
+    const resolvedTickets = brandFilteredTickets.filter(t => t.status === "Resolved").length;
+    const criticalTickets = brandFilteredTickets.filter(t => t.priority === "Critical" && t.status !== "Resolved").length;
+    const activeTests = brandFilteredTests.filter(t => t.status === "Active").length;
+    const completedTests = brandFilteredTests.filter(t => t.status === "Completed").length;
     const openTasks = tasks.filter(t => t.progress !== "Closed").length;
 
     return {
-      tickets: { total: tickets.length, open: openTickets, pending: pendingTickets, resolved: resolvedTickets, critical: criticalTickets },
-      tests: { total: tests.length, active: activeTests, completed: completedTests },
+      tickets: { total: brandFilteredTickets.length, open: openTickets, pending: pendingTickets, resolved: resolvedTickets, critical: criticalTickets },
+      tests: { total: brandFilteredTests.length, active: activeTests, completed: completedTests },
       tasks: { total: tasks.length, open: openTasks },
     };
-  }, [tickets, tests, tasks]);
+  }, [brandFilteredTickets, brandFilteredTests, tasks]);
 
   const [ticketFilter, setTicketFilter] = useState("all");
   const [testFilter, setTestFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"tickets" | "tests">("tickets");
 
-  // Filter by search
+  // Filter by search (applied on top of brand filter)
   const filteredTickets = useMemo(() => {
-    if (!searchQuery) return tickets;
-    const q = searchQuery.toLowerCase();
-    return tickets.filter(
-      t =>
-        (t.issue ?? "").toLowerCase().includes(q) ||
-        (t.client ?? "").toLowerCase().includes(q) ||
-        (t.clientCompany ?? "").toLowerCase().includes(q) ||
-        t.id.includes(q)
-    );
-  }, [searchQuery, tickets]);
+    let result = brandFilteredTickets;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        t =>
+          (t.issue ?? "").toLowerCase().includes(q) ||
+          (t.client ?? "").toLowerCase().includes(q) ||
+          (t.clientCompany ?? "").toLowerCase().includes(q) ||
+          t.id.includes(q)
+      );
+    }
+    return result;
+  }, [searchQuery, brandFilteredTickets]);
 
   const filteredTests = useMemo(() => {
-    if (!searchQuery) return tests;
-    const q = searchQuery.toLowerCase();
-    return tests.filter(
-      t =>
-        (t.subject ?? "").toLowerCase().includes(q) ||
-        (t.brand ?? "").toLowerCase().includes(q) ||
-        (t.client ?? "").toLowerCase().includes(q) ||
-        (t.testType ?? "").toLowerCase().includes(q)
-    );
-  }, [searchQuery, tests]);
+    let result = brandFilteredTests;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        t =>
+          (t.subject ?? "").toLowerCase().includes(q) ||
+          (t.brand ?? "").toLowerCase().includes(q) ||
+          (t.client ?? "").toLowerCase().includes(q) ||
+          (t.testType ?? "").toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [searchQuery, brandFilteredTests]);
 
   const ticketFilterOptions = [
-    { key: "all", label: "All", count: tickets.length },
+    { key: "all", label: "All", count: brandFilteredTickets.length },
     { key: "open", label: "Open", count: stats.tickets.open },
     { key: "pending", label: "Pending", count: stats.tickets.pending },
     { key: "resolved", label: "Resolved", count: stats.tickets.resolved },
@@ -203,18 +274,64 @@ export default function Home() {
   ];
 
   const testFilterOptions = [
-    { key: "all", label: "All", count: tests.length },
+    { key: "all", label: "All", count: brandFilteredTests.length },
     { key: "active", label: "Active", count: stats.tests.active },
     { key: "completed", label: "Completed", count: stats.tests.completed },
-    { key: "beta", label: "Beta", count: tests.filter(t => (t.testType ?? "").includes("Beta")).length },
-    { key: "pltv", label: "pLTV", count: tests.filter(t => (t.testType ?? "").includes("pLTV")).length },
-    { key: "ab", label: "A/B", count: tests.filter(t => (t.testType ?? "").includes("A/B")).length },
+    { key: "beta", label: "Beta", count: brandFilteredTests.filter(t => (t.testType ?? "").includes("Beta")).length },
+    { key: "pltv", label: "pLTV", count: brandFilteredTests.filter(t => (t.testType ?? "").includes("pLTV")).length },
+    { key: "ab", label: "A/B", count: brandFilteredTests.filter(t => (t.testType ?? "").includes("A/B")).length },
   ];
 
   // Sync date display
   const syncDate = lastSync?.syncedAt
     ? new Date(lastSync.syncedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     : new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+  // ---- CSV Export handlers ----
+  const handleExportTickets = useCallback(() => {
+    const headers = ["ID", "Type", "Issue", "Subject", "Status", "Client", "Email", "Brand", "Priority", "Messages", "First Date", "Last Activity", "Gmail Link"];
+    const rows = filteredTickets.map(t => [
+      t.id,
+      t.type,
+      t.issue ?? "",
+      t.subject ?? "",
+      t.status,
+      t.client ?? "",
+      t.clientEmail ?? "",
+      t.clientCompany ?? "",
+      t.priority ?? "",
+      String(t.messageCount ?? 0),
+      t.firstDate ?? "",
+      t.lastActivity ?? "",
+      t.gmailLink ?? "",
+    ]);
+    const brandSuffix = selectedBrand !== "all" ? `_${selectedBrand.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
+    downloadCSV(`box-office-tickets${brandSuffix}_${new Date().toISOString().slice(0, 10)}.csv`, headers, rows);
+  }, [filteredTickets, selectedBrand]);
+
+  const handleExportTests = useCallback(() => {
+    const headers = ["ID", "Subject", "Test Type", "Status", "Brand", "Client", "Email", "Messages", "First Date", "Last Activity", "Gmail Link"];
+    const rows = filteredTests.map(t => [
+      t.id,
+      t.subject ?? "",
+      t.testType ?? "",
+      t.status,
+      t.brand ?? "",
+      t.client ?? "",
+      t.clientEmail ?? "",
+      String(t.messageCount ?? 0),
+      t.firstDate ?? "",
+      t.lastActivity ?? "",
+      t.gmailLink ?? "",
+    ]);
+    const brandSuffix = selectedBrand !== "all" ? `_${selectedBrand.replace(/[^a-zA-Z0-9]/g, "_")}` : "";
+    downloadCSV(`box-office-tests${brandSuffix}_${new Date().toISOString().slice(0, 10)}.csv`, headers, rows);
+  }, [filteredTests, selectedBrand]);
+
+  const handleExportAll = useCallback(() => {
+    handleExportTickets();
+    setTimeout(() => handleExportTests(), 200);
+  }, [handleExportTickets, handleExportTests]);
 
   if (isLoading) {
     return (
@@ -254,7 +371,88 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {/* Brand Filter Dropdown */}
+              <div className="relative" ref={brandDropdownRef}>
+                <button
+                  onClick={() => setBrandDropdownOpen(!brandDropdownOpen)}
+                  className={cn(
+                    "flex items-center gap-1.5 h-9 rounded-lg border px-3 text-xs transition-all backdrop-blur-sm",
+                    selectedBrand !== "all"
+                      ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-300"
+                      : "border-border/50 bg-card/50 text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Building2 className="h-3.5 w-3.5" />
+                  <span className="max-w-[120px] truncate">
+                    {selectedBrand === "all" ? "All Brands" : selectedBrand}
+                  </span>
+                  {selectedBrand !== "all" ? (
+                    <X
+                      className="h-3 w-3 ml-0.5 hover:text-white cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedBrand("all");
+                        setBrandDropdownOpen(false);
+                      }}
+                    />
+                  ) : (
+                    <ChevronDown className={cn("h-3 w-3 transition-transform", brandDropdownOpen && "rotate-180")} />
+                  )}
+                </button>
+
+                {brandDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-1 z-50 w-56 max-h-72 overflow-y-auto rounded-lg border border-border/60 bg-card shadow-xl backdrop-blur-md"
+                  >
+                    <div className="p-1">
+                      <button
+                        onClick={() => { setSelectedBrand("all"); setBrandDropdownOpen(false); }}
+                        className={cn(
+                          "w-full flex items-center gap-2 rounded-md px-3 py-2 text-xs transition-colors",
+                          selectedBrand === "all"
+                            ? "bg-blue-500/15 text-blue-300"
+                            : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        )}
+                      >
+                        <span className="h-2 w-2 rounded-full bg-blue-400" />
+                        All Brands
+                        <span className="ml-auto font-mono text-[10px] opacity-60">
+                          {tickets.length + tests.length}
+                        </span>
+                      </button>
+                      <div className="my-1 h-px bg-border/30" />
+                      {allBrands.map(brand => {
+                        const ticketCount = tickets.filter(t => (t.clientCompany ?? "").toLowerCase() === brand.toLowerCase()).length;
+                        const testCount = tests.filter(t => (t.brand ?? "").toLowerCase() === brand.toLowerCase()).length;
+                        return (
+                          <button
+                            key={brand}
+                            onClick={() => { setSelectedBrand(brand); setBrandDropdownOpen(false); }}
+                            className={cn(
+                              "w-full flex items-center gap-2 rounded-md px-3 py-2 text-xs transition-colors",
+                              selectedBrand === brand
+                                ? "bg-cyan-500/15 text-cyan-300"
+                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                            )}
+                          >
+                            <span className="h-2 w-2 rounded-full bg-cyan-400/60" />
+                            <span className="truncate">{brand}</span>
+                            <span className="ml-auto font-mono text-[10px] opacity-60">
+                              {ticketCount + testCount}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                 <input
@@ -262,9 +460,23 @@ export default function Home() {
                   placeholder="Search tickets, tests, clients..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="h-9 w-64 rounded-lg border border-border/50 bg-card/50 pl-9 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 backdrop-blur-sm"
+                  className="h-9 w-56 rounded-lg border border-border/50 bg-card/50 pl-9 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 backdrop-blur-sm"
                 />
               </div>
+
+              {/* CSV Export Button */}
+              <div className="relative group">
+                <button
+                  onClick={activeTab === "tickets" ? handleExportTickets : handleExportTests}
+                  className="flex items-center gap-1.5 h-9 rounded-lg border border-border/50 bg-card/50 px-3 text-xs text-muted-foreground hover:text-foreground hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-300 transition-all backdrop-blur-sm"
+                  title={`Export ${activeTab} as CSV`}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Export CSV</span>
+                </button>
+              </div>
+
+              {/* Sync indicator */}
               <div className="flex items-center gap-1.5 rounded-lg border border-border/50 bg-card/50 px-3 py-2 text-xs text-muted-foreground backdrop-blur-sm">
                 <RefreshCw className="h-3 w-3" />
                 <span className="font-mono">
@@ -273,6 +485,30 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          {/* Active brand filter indicator */}
+          {selectedBrand !== "all" && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-3 flex items-center gap-2"
+            >
+              <span className="text-[11px] text-muted-foreground">Filtered by:</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-0.5 text-[11px] font-medium text-cyan-300">
+                <Building2 className="h-3 w-3" />
+                {selectedBrand}
+                <button
+                  onClick={() => setSelectedBrand("all")}
+                  className="ml-0.5 hover:text-white transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+              <span className="text-[10px] font-mono text-muted-foreground">
+                {stats.tickets.total} tickets, {stats.tests.total} tests
+              </span>
+            </motion.div>
+          )}
         </div>
       </header>
 
@@ -293,37 +529,49 @@ export default function Home() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px]">
           {/* Left: Main panel */}
           <div>
-            {/* Tab switcher */}
-            <div className="mb-4 flex items-center gap-1 rounded-lg border border-border/40 bg-card/30 p-1 backdrop-blur-sm w-fit">
+            {/* Tab switcher + Export */}
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-1 rounded-lg border border-border/40 bg-card/30 p-1 backdrop-blur-sm w-fit">
+                <button
+                  onClick={() => setActiveTab("tickets")}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                    activeTab === "tickets"
+                      ? "bg-blue-500/15 text-blue-300 shadow-[0_0_12px_oklch(0.65_0.2_260/0.15)]"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <TicketIcon className="h-3.5 w-3.5" />
+                  Support Tickets
+                  <span className="ml-1 rounded bg-blue-500/10 px-1.5 py-0.5 font-mono text-[10px]">
+                    {stats.tickets.total}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("tests")}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
+                    activeTab === "tests"
+                      ? "bg-purple-500/15 text-purple-300 shadow-[0_0_12px_oklch(0.7_0.15_300/0.15)]"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Beaker className="h-3.5 w-3.5" />
+                  Tests & Experiments
+                  <span className="ml-1 rounded bg-purple-500/10 px-1.5 py-0.5 font-mono text-[10px]">
+                    {stats.tests.total}
+                  </span>
+                </button>
+              </div>
+
+              {/* Export All button (secondary, inline with tabs) */}
               <button
-                onClick={() => setActiveTab("tickets")}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
-                  activeTab === "tickets"
-                    ? "bg-blue-500/15 text-blue-300 shadow-[0_0_12px_oklch(0.65_0.2_260/0.15)]"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
+                onClick={handleExportAll}
+                className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] text-muted-foreground hover:text-emerald-300 transition-colors"
+                title="Export both tickets and tests as CSV"
               >
-                <TicketIcon className="h-3.5 w-3.5" />
-                Support Tickets
-                <span className="ml-1 rounded bg-blue-500/10 px-1.5 py-0.5 font-mono text-[10px]">
-                  {stats.tickets.total}
-                </span>
-              </button>
-              <button
-                onClick={() => setActiveTab("tests")}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
-                  activeTab === "tests"
-                    ? "bg-purple-500/15 text-purple-300 shadow-[0_0_12px_oklch(0.7_0.15_300/0.15)]"
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <Beaker className="h-3.5 w-3.5" />
-                Tests & Experiments
-                <span className="ml-1 rounded bg-purple-500/10 px-1.5 py-0.5 font-mono text-[10px]">
-                  {stats.tests.total}
-                </span>
+                <Download className="h-3 w-3" />
+                Export All
               </button>
             </div>
 
@@ -385,7 +633,7 @@ export default function Home() {
                 Ticket Breakdown by Company
               </h3>
               <div className="space-y-2">
-                {getCompanyBreakdown(tickets).map(({ company, count, percentage }) => (
+                {getCompanyBreakdown(brandFilteredTickets).map(({ company, count, percentage }) => (
                   <div key={company}>
                     <div className="flex items-center justify-between text-xs mb-1">
                       <span className="text-foreground">{company}</span>
@@ -410,7 +658,7 @@ export default function Home() {
                 Recent Activity
               </h3>
               <div className="space-y-3">
-                {getRecentActivity(tickets, tests).map((item, i) => (
+                {getRecentActivity(brandFilteredTickets, brandFilteredTests).map((item, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, x: 5 }}
@@ -420,7 +668,7 @@ export default function Home() {
                   >
                     <div className="relative flex flex-col items-center">
                       <div className={cn("h-2 w-2 rounded-full mt-1.5", item.dotColor)} />
-                      {i < getRecentActivity(tickets, tests).length - 1 && (
+                      {i < getRecentActivity(brandFilteredTickets, brandFilteredTests).length - 1 && (
                         <div className="w-px flex-1 bg-border/30 mt-1" />
                       )}
                     </div>
@@ -459,7 +707,6 @@ function getCompanyBreakdown(tickets: TicketRow[]) {
 }
 
 function getRecentActivity(tickets: TicketRow[], tests: TestRow[]) {
-  // Build activity from the most recent tickets and tests
   const items: { text: string; date: string; dotColor: string; sortDate: string }[] = [];
 
   tickets.slice(0, 5).forEach(t => {
