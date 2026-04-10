@@ -21,4 +21,4 @@
 - [x] Update frontend to fetch from API with auto-refresh every 5 minutes
 - [x] Add loading state for API data fetching
 - [x] Write vitest tests for all dashboard API routes (6 tests passing)
-- [ ] Set up hourly scheduled sync task (via Manus scheduled task)
+- [x] Set up hourly scheduled sync task (via Manus scheduled task)
