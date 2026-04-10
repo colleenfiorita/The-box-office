@@ -1,7 +1,7 @@
 /*
  * Mission Control Dashboard Data
  * Sourced from Gmail (colleenfiorita@meta.com) and internal task systems
- * Last synced: April 9, 2026
+ * Last synced: April 10, 2026
  */
 
 export interface Ticket {
@@ -49,6 +49,22 @@ export interface Task {
 }
 
 export const tickets: Ticket[] = [
+  {
+    id: "aazrsx42jg4zyt",
+    type: "Case",
+    subject: "Your Ads Inquiry - Spend Limit Increase",
+    issue: "Spend Limit Increase",
+    status: "Open",
+    client: "Meta Payments Support",
+    clientEmail: "",
+    clientCompany: "Internal / RiskOps",
+    firstDate: "2026-04-10",
+    lastActivity: "2026-04-10",
+    messageCount: 1,
+    priority: "Medium",
+    snippet: "Spend limit increase approved — doubled current amount per RiskOps policy. New limits applied to Billing Threshold, Daily Spend Limit, and Daily Top Up for ad account 406648284675117.",
+    gmailLink: "https://mail.google.com/mail/u/0/#inbox/19d783dce9054c85"
+  },
   {
     id: "782580541104314",
     type: "Case",
