@@ -2,13 +2,14 @@
  * The Box Office — Ticket & Test Tracker Dashboard
  * Design: Dark aerospace command center aesthetic
  * Typography: Outfit (headings) + JetBrains Mono (data)
+ * Now powered by live API data from the database
  */
 
 import { MetricCard } from "@/components/MetricCard";
 import { TicketTable } from "@/components/TicketTable";
 import { TestTracker } from "@/components/TestTracker";
 import { TaskList } from "@/components/TaskList";
-import { tickets, tests, tasks, getSummaryStats } from "@/data/dashboardData";
+import { trpc } from "@/lib/trpc";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
@@ -18,6 +19,7 @@ import {
   ClipboardList,
   Clock,
   Inbox,
+  Loader2,
   Radio,
   RefreshCw,
   Search,
@@ -27,8 +29,141 @@ import { useState, useMemo } from "react";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663323892800/YAkPu6UgiYsd9GDQL38Xuz/hero-bg-AromJnbsnWj7U7CATfvCyu.webp";
 
+// Map DB records to the shape our components expect
+type TicketRow = {
+  id: string;
+  type: string;
+  subject: string | null;
+  issue: string | null;
+  status: string;
+  client: string | null;
+  clientEmail: string | null;
+  clientCompany: string | null;
+  firstDate: string | null;
+  lastActivity: string | null;
+  messageCount: number | null;
+  priority: string | null;
+  snippet: string | null;
+  gmailLink: string | null;
+};
+
+type TestRow = {
+  id: string;
+  subject: string | null;
+  testType: string | null;
+  status: string;
+  brand: string | null;
+  client: string | null;
+  clientEmail: string | null;
+  firstDate: string | null;
+  lastActivity: string | null;
+  messageCount: number | null;
+  snippet: string | null;
+  gmailLink: string | null;
+};
+
+type TaskRow = {
+  id: number;
+  taskNumber: string;
+  title: string | null;
+  owner: string | null;
+  ownerEmail: string | null;
+  progress: string | null;
+  priority: string | null;
+  creationDate: string | null;
+  tags: string[];
+  taskLink: string | null;
+};
+
 export default function Home() {
-  const stats = useMemo(() => getSummaryStats(), []);
+  // Fetch data from API with auto-refresh every 5 minutes
+  const { data: ticketsRaw, isLoading: ticketsLoading } = trpc.dashboard.tickets.useQuery(undefined, {
+    refetchInterval: 5 * 60 * 1000,
+  });
+  const { data: testsRaw, isLoading: testsLoading } = trpc.dashboard.tests.useQuery(undefined, {
+    refetchInterval: 5 * 60 * 1000,
+  });
+  const { data: tasksRaw, isLoading: tasksLoading } = trpc.dashboard.tasks.useQuery(undefined, {
+    refetchInterval: 5 * 60 * 1000,
+  });
+  const { data: lastSync } = trpc.dashboard.lastSync.useQuery(undefined, {
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  const isLoading = ticketsLoading || testsLoading || tasksLoading;
+
+  // Map DB rows to component-compatible shapes
+  const tickets: TicketRow[] = useMemo(() => {
+    if (!ticketsRaw) return [];
+    return ticketsRaw.map(t => ({
+      id: t.externalId,
+      type: t.type,
+      subject: t.subject,
+      issue: t.issue,
+      status: t.status,
+      client: t.client,
+      clientEmail: t.clientEmail,
+      clientCompany: t.clientCompany,
+      firstDate: t.firstDate,
+      lastActivity: t.lastActivity,
+      messageCount: t.messageCount,
+      priority: t.priority,
+      snippet: t.snippet,
+      gmailLink: t.gmailLink,
+    }));
+  }, [ticketsRaw]);
+
+  const tests: TestRow[] = useMemo(() => {
+    if (!testsRaw) return [];
+    return testsRaw.map(t => ({
+      id: t.externalId,
+      subject: t.subject,
+      testType: t.testType,
+      status: t.status,
+      brand: t.brand,
+      client: t.client,
+      clientEmail: t.clientEmail,
+      firstDate: t.firstDate,
+      lastActivity: t.lastActivity,
+      messageCount: t.messageCount,
+      snippet: t.snippet,
+      gmailLink: t.gmailLink,
+    }));
+  }, [testsRaw]);
+
+  const tasks: TaskRow[] = useMemo(() => {
+    if (!tasksRaw) return [];
+    return tasksRaw.map(t => ({
+      id: t.id,
+      taskNumber: t.taskNumber,
+      title: t.title,
+      owner: t.owner,
+      ownerEmail: t.ownerEmail,
+      progress: t.progress,
+      priority: t.priority,
+      creationDate: t.creationDate,
+      tags: Array.isArray(t.tags) ? t.tags : [],
+      taskLink: t.taskLink,
+    }));
+  }, [tasksRaw]);
+
+  // Compute stats from live data
+  const stats = useMemo(() => {
+    const openTickets = tickets.filter(t => t.status === "Open").length;
+    const pendingTickets = tickets.filter(t => t.status === "Pending").length;
+    const resolvedTickets = tickets.filter(t => t.status === "Resolved").length;
+    const criticalTickets = tickets.filter(t => t.priority === "Critical" && t.status !== "Resolved").length;
+    const activeTests = tests.filter(t => t.status === "Active").length;
+    const completedTests = tests.filter(t => t.status === "Completed").length;
+    const openTasks = tasks.filter(t => t.progress !== "Closed").length;
+
+    return {
+      tickets: { total: tickets.length, open: openTickets, pending: pendingTickets, resolved: resolvedTickets, critical: criticalTickets },
+      tests: { total: tests.length, active: activeTests, completed: completedTests },
+      tasks: { total: tasks.length, open: openTasks },
+    };
+  }, [tickets, tests, tasks]);
+
   const [ticketFilter, setTicketFilter] = useState("all");
   const [testFilter, setTestFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,24 +175,24 @@ export default function Home() {
     const q = searchQuery.toLowerCase();
     return tickets.filter(
       t =>
-        t.issue.toLowerCase().includes(q) ||
-        t.client.toLowerCase().includes(q) ||
-        t.clientCompany.toLowerCase().includes(q) ||
+        (t.issue ?? "").toLowerCase().includes(q) ||
+        (t.client ?? "").toLowerCase().includes(q) ||
+        (t.clientCompany ?? "").toLowerCase().includes(q) ||
         t.id.includes(q)
     );
-  }, [searchQuery]);
+  }, [searchQuery, tickets]);
 
   const filteredTests = useMemo(() => {
     if (!searchQuery) return tests;
     const q = searchQuery.toLowerCase();
     return tests.filter(
       t =>
-        t.subject.toLowerCase().includes(q) ||
-        t.brand.toLowerCase().includes(q) ||
-        t.client.toLowerCase().includes(q) ||
-        t.testType.toLowerCase().includes(q)
+        (t.subject ?? "").toLowerCase().includes(q) ||
+        (t.brand ?? "").toLowerCase().includes(q) ||
+        (t.client ?? "").toLowerCase().includes(q) ||
+        (t.testType ?? "").toLowerCase().includes(q)
     );
-  }, [searchQuery]);
+  }, [searchQuery, tests]);
 
   const ticketFilterOptions = [
     { key: "all", label: "All", count: tickets.length },
@@ -71,10 +206,26 @@ export default function Home() {
     { key: "all", label: "All", count: tests.length },
     { key: "active", label: "Active", count: stats.tests.active },
     { key: "completed", label: "Completed", count: stats.tests.completed },
-    { key: "beta", label: "Beta", count: tests.filter(t => t.testType === "Beta Test").length },
-    { key: "pltv", label: "pLTV", count: tests.filter(t => t.testType === "pLTV Test").length },
-    { key: "ab", label: "A/B", count: tests.filter(t => t.testType === "A/B Test").length },
+    { key: "beta", label: "Beta", count: tests.filter(t => (t.testType ?? "").includes("Beta")).length },
+    { key: "pltv", label: "pLTV", count: tests.filter(t => (t.testType ?? "").includes("pLTV")).length },
+    { key: "ab", label: "A/B", count: tests.filter(t => (t.testType ?? "").includes("A/B")).length },
   ];
+
+  // Sync date display
+  const syncDate = lastSync?.syncedAt
+    ? new Date(lastSync.syncedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+          <p className="text-sm text-muted-foreground font-mono">Loading The Box Office...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -117,7 +268,7 @@ export default function Home() {
               <div className="flex items-center gap-1.5 rounded-lg border border-border/50 bg-card/50 px-3 py-2 text-xs text-muted-foreground backdrop-blur-sm">
                 <RefreshCw className="h-3 w-3" />
                 <span className="font-mono">
-                  Synced {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  Synced {syncDate}
                 </span>
               </div>
             </div>
@@ -128,51 +279,12 @@ export default function Home() {
       {/* Metric Cards */}
       <section className="container py-5">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-          <MetricCard
-            label="Total Tickets"
-            value={stats.tickets.total}
-            icon={TicketIcon}
-            color="blue"
-            delay={0}
-          />
-          <MetricCard
-            label="Open"
-            value={stats.tickets.open}
-            icon={Inbox}
-            color="blue"
-            subtitle="Needs attention"
-            delay={0.05}
-          />
-          <MetricCard
-            label="Pending"
-            value={stats.tickets.pending}
-            icon={Clock}
-            color="amber"
-            subtitle="Awaiting response"
-            delay={0.1}
-          />
-          <MetricCard
-            label="Critical"
-            value={stats.tickets.critical}
-            icon={AlertTriangle}
-            color="red"
-            subtitle="Urgent"
-            delay={0.15}
-          />
-          <MetricCard
-            label="Active Tests"
-            value={stats.tests.active}
-            icon={Beaker}
-            color="purple"
-            delay={0.2}
-          />
-          <MetricCard
-            label="Resolved"
-            value={stats.tickets.resolved}
-            icon={CheckCircle2}
-            color="green"
-            delay={0.25}
-          />
+          <MetricCard label="Total Tickets" value={stats.tickets.total} icon={TicketIcon} color="blue" delay={0} />
+          <MetricCard label="Open" value={stats.tickets.open} icon={Inbox} color="blue" subtitle="Needs attention" delay={0.05} />
+          <MetricCard label="Pending" value={stats.tickets.pending} icon={Clock} color="amber" subtitle="Awaiting response" delay={0.1} />
+          <MetricCard label="Critical" value={stats.tickets.critical} icon={AlertTriangle} color="red" subtitle="Urgent" delay={0.15} />
+          <MetricCard label="Active Tests" value={stats.tests.active} icon={Beaker} color="purple" delay={0.2} />
+          <MetricCard label="Resolved" value={stats.tickets.resolved} icon={CheckCircle2} color="green" delay={0.25} />
         </div>
       </section>
 
@@ -246,9 +358,9 @@ export default function Home() {
               transition={{ duration: 0.2 }}
             >
               {activeTab === "tickets" ? (
-                <TicketTable tickets={filteredTickets} filter={ticketFilter} />
+                <TicketTable tickets={filteredTickets as any} filter={ticketFilter} />
               ) : (
-                <TestTracker tests={filteredTests} filter={testFilter} />
+                <TestTracker tests={filteredTests as any} filter={testFilter} />
               )}
             </motion.div>
           </div>
@@ -264,7 +376,7 @@ export default function Home() {
                   {stats.tasks.open}
                 </span>
               </div>
-              <TaskList tasks={tasks} />
+              <TaskList tasks={tasks as any} />
             </div>
 
             {/* Quick Stats */}
@@ -273,7 +385,7 @@ export default function Home() {
                 Ticket Breakdown by Company
               </h3>
               <div className="space-y-2">
-                {getCompanyBreakdown().map(({ company, count, percentage }) => (
+                {getCompanyBreakdown(tickets).map(({ company, count, percentage }) => (
                   <div key={company}>
                     <div className="flex items-center justify-between text-xs mb-1">
                       <span className="text-foreground">{company}</span>
@@ -298,7 +410,7 @@ export default function Home() {
                 Recent Activity
               </h3>
               <div className="space-y-3">
-                {getRecentActivity().map((item, i) => (
+                {getRecentActivity(tickets, tests).map((item, i) => (
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, x: 5 }}
@@ -308,7 +420,7 @@ export default function Home() {
                   >
                     <div className="relative flex flex-col items-center">
                       <div className={cn("h-2 w-2 rounded-full mt-1.5", item.dotColor)} />
-                      {i < getRecentActivity().length - 1 && (
+                      {i < getRecentActivity(tickets, tests).length - 1 && (
                         <div className="w-px flex-1 bg-border/30 mt-1" />
                       )}
                     </div>
@@ -329,7 +441,7 @@ export default function Home() {
   );
 }
 
-function getCompanyBreakdown() {
+function getCompanyBreakdown(tickets: TicketRow[]) {
   const companies: Record<string, number> = {};
   tickets.forEach(t => {
     const company = t.clientCompany || "Internal";
@@ -346,47 +458,29 @@ function getCompanyBreakdown() {
   }));
 }
 
-function getRecentActivity() {
-  return [
-    {
-      text: "Case #782580 — Login access issue opened for Mattel",
-      date: "Apr 9, 2026",
-      dotColor: "bg-blue-400",
-    },
-    {
-      text: "Case #1505820 — IG Shops Discount Codes escalated for DVF",
-      date: "Apr 9, 2026",
-      dotColor: "bg-blue-400",
-    },
-    {
-      text: "Shopify AI Checkout Beta Test — outreach initiated",
-      date: "Apr 9, 2026",
+function getRecentActivity(tickets: TicketRow[], tests: TestRow[]) {
+  // Build activity from the most recent tickets and tests
+  const items: { text: string; date: string; dotColor: string; sortDate: string }[] = [];
+
+  tickets.slice(0, 5).forEach(t => {
+    const prefix = t.type === "Case" ? "Case" : "Ticket";
+    const shortId = t.id.length > 8 ? t.id.slice(0, 8) : t.id;
+    items.push({
+      text: `${prefix} #${shortId} — ${t.issue || t.subject || "Update"} (${t.clientCompany || "Internal"})`,
+      date: t.lastActivity ? new Date(t.lastActivity).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "",
+      dotColor: t.status === "Resolved" ? "bg-emerald-400" : "bg-blue-400",
+      sortDate: t.lastActivity || "",
+    });
+  });
+
+  tests.slice(0, 3).forEach(t => {
+    items.push({
+      text: `${t.testType || "Test"} — ${t.subject || "Update"} (${t.brand || "Unknown"})`,
+      date: t.lastActivity ? new Date(t.lastActivity).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "",
       dotColor: "bg-purple-400",
-    },
-    {
-      text: "Ticket #1273484 — Fisher-Price support updated",
-      date: "Apr 7, 2026",
-      dotColor: "bg-blue-400",
-    },
-    {
-      text: "Case #923349 — Lovepop overspend resolved",
-      date: "Apr 6, 2026",
-      dotColor: "bg-emerald-400",
-    },
-    {
-      text: "Case #1418603 — Fraudulent account recovery complete",
-      date: "Apr 2, 2026",
-      dotColor: "bg-emerald-400",
-    },
-    {
-      text: "Task T263453022 — CRM data tagging guidance in progress",
-      date: "Apr 6, 2026",
-      dotColor: "bg-amber-400",
-    },
-    {
-      text: "Meta Voice AI $25k test — Lovepop Cards active",
-      date: "Mar 5, 2026",
-      dotColor: "bg-purple-400",
-    },
-  ];
+      sortDate: t.lastActivity || "",
+    });
+  });
+
+  return items.sort((a, b) => b.sortDate.localeCompare(a.sortDate)).slice(0, 8);
 }

@@ -1,0 +1,24 @@
+# The Box Office - Project TODO
+
+- [x] Dark aerospace "Mission Control" theme design
+- [x] Metric cards (Total Tickets, Open, Pending, Critical, Active Tests, Resolved)
+- [x] Sortable ticket table with status filters and search
+- [x] Test/experiment tracker with brand badges
+- [x] Open tasks sidebar with clickable links
+- [x] Company breakdown chart
+- [x] Recent activity timeline
+- [x] Rename dashboard to "The Box Office"
+- [x] Add clickable Gmail links to tickets and tests
+- [x] Add clickable task links to tasks
+- [x] Add mailto links for client emails
+- [x] Add Brand/Company column to ticket table
+- [x] Add brand labels to test cards
+- [x] Export to GitHub (public repo)
+- [x] Upgrade to full-stack (web-db-user)
+- [x] Create database schema (tickets, tests, tasks, syncLog tables)
+- [x] Build tRPC API routes (dashboard.tickets, dashboard.tests, dashboard.tasks, dashboard.lastSync, dashboard.sync)
+- [x] Seed database with all existing data (26 tickets, 30 tests, 3 tasks)
+- [x] Update frontend to fetch from API with auto-refresh every 5 minutes
+- [x] Add loading state for API data fetching
+- [x] Write vitest tests for all dashboard API routes (6 tests passing)
+- [ ] Set up hourly scheduled sync task (via Manus scheduled task)
