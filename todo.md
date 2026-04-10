@@ -25,3 +25,6 @@
 - [x] Brand filter dropdown in header to filter all views by company/brand
 - [x] CSV export button to download current filtered view as spreadsheet
 - [ ] CRM integration to enrich brand data with deal stage, revenue, account owner (on hold)
+- [x] Bug: Brand dropdown renders behind metric cards (z-index issue)
+- [x] Bug: Missing Harry's ticket filed today — not showing in dashboard
+- [x] Add manual ticket entry form to dashboard for tickets that auto-sync misses

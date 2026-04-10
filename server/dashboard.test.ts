@@ -108,4 +108,40 @@ describe("dashboard routes", () => {
     expect(result.success).toBe(true);
     expect(result.itemsSynced).toBe(3);
   });
+
+  it("dashboard.createTicket creates a ticket and returns success", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    const result = await caller.dashboard.createTicket({
+      externalId: "C-VITEST-MANUAL-001",
+      type: "escalation",
+      issue: "Vitest Manual Ticket Test",
+      client: "Test User",
+      clientEmail: "test@example.com",
+      clientCompany: "Test Corp",
+      priority: "High",
+      snippet: "Created via vitest manual entry test",
+    });
+
+    expect(result.success).toBe(true);
+
+    // Verify the ticket appears in the list
+    const tickets = await caller.dashboard.tickets();
+    const found = tickets.find(t => t.externalId === "C-VITEST-MANUAL-001");
+    expect(found).toBeDefined();
+    expect(found?.issue).toBe("Vitest Manual Ticket Test");
+    expect(found?.clientCompany).toBe("Test Corp");
+    expect(found?.priority).toBe("High");
+  });
+
+  it("dashboard.createTicket rejects missing required fields", async () => {
+    const ctx = createPublicContext();
+    const caller = appRouter.createCaller(ctx);
+    // Missing issue field should fail validation
+    await expect(
+      caller.dashboard.createTicket({
+        externalId: "C-VITEST-FAIL",
+      } as any)
+    ).rejects.toThrow();
+  });
 });

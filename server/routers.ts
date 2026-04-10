@@ -8,6 +8,7 @@ import {
   getAllTests,
   getAllTasks,
   getLastSync,
+  upsertTicket,
   bulkUpsertTickets,
   bulkUpsertTests,
   bulkUpsertTasks,
@@ -50,6 +51,33 @@ export const appRouter = router({
     lastSync: publicProcedure.query(async () => {
       return getLastSync();
     }),
+
+    /** Create a single ticket manually */
+    createTicket: publicProcedure
+      .input(
+        z.object({
+          externalId: z.string(),
+          type: z.string().default("manual"),
+          subject: z.string().optional(),
+          issue: z.string(),
+          status: z.string().default("Open"),
+          client: z.string().optional(),
+          clientEmail: z.string().optional(),
+          clientCompany: z.string().optional(),
+          priority: z.string().default("Medium"),
+          snippet: z.string().optional(),
+          gmailLink: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await upsertTicket({
+          ...input,
+          firstDate: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+          lastActivity: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+          messageCount: 1,
+        });
+        return { success: true };
+      }),
 
     /** Seed / sync data — accepts arrays of tickets, tests, tasks */
     sync: publicProcedure

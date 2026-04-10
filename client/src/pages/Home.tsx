@@ -23,12 +23,14 @@ import {
   Download,
   Inbox,
   Loader2,
+  Plus,
   Radio,
   RefreshCw,
   Search,
   Ticket as TicketIcon,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 
 const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663323892800/YAkPu6UgiYsd9GDQL38Xuz/hero-bg-AromJnbsnWj7U7CATfvCyu.webp";
@@ -234,6 +236,32 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"tickets" | "tests">("tickets");
 
+  // ---- Manual Ticket Entry ----
+  const [showAddTicket, setShowAddTicket] = useState(false);
+  const [newTicket, setNewTicket] = useState({
+    externalId: "",
+    issue: "",
+    client: "",
+    clientEmail: "",
+    clientCompany: "",
+    priority: "Medium",
+    snippet: "",
+    gmailLink: "",
+  });
+  const createTicketMutation = trpc.dashboard.createTicket.useMutation({
+    onSuccess: () => {
+      toast.success("Ticket added successfully!");
+      setShowAddTicket(false);
+      setNewTicket({ externalId: "", issue: "", client: "", clientEmail: "", clientCompany: "", priority: "Medium", snippet: "", gmailLink: "" });
+      // Refetch tickets
+      trpcUtils.dashboard.tickets.invalidate();
+    },
+    onError: (err) => {
+      toast.error("Failed to add ticket: " + err.message);
+    },
+  });
+  const trpcUtils = trpc.useUtils();
+
   // Filter by search (applied on top of brand filter)
   const filteredTickets = useMemo(() => {
     let result = brandFilteredTickets;
@@ -348,15 +376,15 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header
-        className="relative border-b border-border/50 overflow-hidden"
+        className="relative border-b border-border/50 overflow-visible z-50"
         style={{
           backgroundImage: `url(${HERO_BG})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
-        <div className="relative container py-6">
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" style={{ zIndex: -1 }} />
+        <div className="relative container py-6" style={{ zIndex: 50 }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/15 border border-blue-500/20">
@@ -463,6 +491,16 @@ export default function Home() {
                   className="h-9 w-56 rounded-lg border border-border/50 bg-card/50 pl-9 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 backdrop-blur-sm"
                 />
               </div>
+
+              {/* Add Ticket Button */}
+              <button
+                onClick={() => setShowAddTicket(true)}
+                className="flex items-center gap-1.5 h-9 rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 text-xs text-blue-300 hover:bg-blue-500/20 transition-all backdrop-blur-sm"
+                title="Add ticket manually"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Add Ticket</span>
+              </button>
 
               {/* CSV Export Button */}
               <div className="relative group">
@@ -685,6 +723,158 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {/* Manual Ticket Entry Modal */}
+      {showAddTicket && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowAddTicket(false)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2 }}
+            className="w-full max-w-lg rounded-xl border border-border/60 bg-card shadow-2xl p-6 mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/15 border border-blue-500/20">
+                  <Plus className="h-4 w-4 text-blue-400" />
+                </div>
+                <h2 className="text-sm font-semibold text-foreground">Add Ticket Manually</h2>
+              </div>
+              <button onClick={() => setShowAddTicket(false)} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Case / Ticket ID *</label>
+                  <input
+                    type="text"
+                    value={newTicket.externalId}
+                    onChange={e => setNewTicket(prev => ({ ...prev, externalId: e.target.value }))}
+                    placeholder="e.g. 1550422596515427"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Priority</label>
+                  <select
+                    value={newTicket.priority}
+                    onChange={e => setNewTicket(prev => ({ ...prev, priority: e.target.value }))}
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Critical">Critical</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-muted-foreground mb-1">Issue / Description *</label>
+                <input
+                  type="text"
+                  value={newTicket.issue}
+                  onChange={e => setNewTicket(prev => ({ ...prev, issue: e.target.value }))}
+                  placeholder="e.g. Lost access to Ads Manager"
+                  className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Client Name</label>
+                  <input
+                    type="text"
+                    value={newTicket.client}
+                    onChange={e => setNewTicket(prev => ({ ...prev, client: e.target.value }))}
+                    placeholder="e.g. Justin Woods"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Brand / Company</label>
+                  <input
+                    type="text"
+                    value={newTicket.clientCompany}
+                    onChange={e => setNewTicket(prev => ({ ...prev, clientCompany: e.target.value }))}
+                    placeholder="e.g. Harry's"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Client Email</label>
+                  <input
+                    type="text"
+                    value={newTicket.clientEmail}
+                    onChange={e => setNewTicket(prev => ({ ...prev, clientEmail: e.target.value }))}
+                    placeholder="e.g. justin@harrys.com"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Link (optional)</label>
+                  <input
+                    type="text"
+                    value={newTicket.gmailLink}
+                    onChange={e => setNewTicket(prev => ({ ...prev, gmailLink: e.target.value }))}
+                    placeholder="URL to ticket or email"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-muted-foreground mb-1">Notes (optional)</label>
+                <textarea
+                  value={newTicket.snippet}
+                  onChange={e => setNewTicket(prev => ({ ...prev, snippet: e.target.value }))}
+                  placeholder="Brief description or context..."
+                  rows={2}
+                  className="w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 mt-5">
+              <button
+                onClick={() => setShowAddTicket(false)}
+                className="h-9 rounded-lg border border-border/50 px-4 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (!newTicket.externalId || !newTicket.issue) {
+                    toast.error("Case ID and Issue are required");
+                    return;
+                  }
+                  createTicketMutation.mutate({
+                    externalId: `C-${newTicket.externalId.replace(/^C-/, "")}`,
+                    type: "escalation",
+                    issue: newTicket.issue,
+                    client: newTicket.client || undefined,
+                    clientEmail: newTicket.clientEmail || undefined,
+                    clientCompany: newTicket.clientCompany || undefined,
+                    priority: newTicket.priority,
+                    snippet: newTicket.snippet || undefined,
+                    gmailLink: newTicket.gmailLink || undefined,
+                  });
+                }}
+                disabled={createTicketMutation.isPending}
+                className="h-9 rounded-lg bg-blue-500/20 border border-blue-500/40 px-4 text-xs font-medium text-blue-300 hover:bg-blue-500/30 transition-all disabled:opacity-50"
+              >
+                {createTicketMutation.isPending ? "Adding..." : "Add Ticket"}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
