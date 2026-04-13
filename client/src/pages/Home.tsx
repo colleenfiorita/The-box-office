@@ -1,6 +1,6 @@
 /*
  * The Box Office — Ticket & Test Tracker Dashboard
- * Design: Dark aerospace command center aesthetic
+ * Design: Classic ticket box office / cinema marquee aesthetic
  * Typography: Outfit (headings) + JetBrains Mono (data)
  * Now powered by live API data from the database
  */
@@ -33,7 +33,7 @@ import {
 import { toast } from "sonner";
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 
-const HERO_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663323892800/YAkPu6UgiYsd9GDQL38Xuz/hero-bg-AromJnbsnWj7U7CATfvCyu.webp";
+const HERO_BG = "/hero-marquee.jpg";
 
 // Map DB records to the shape our components expect
 type TicketRow = {
@@ -390,7 +390,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+          <Loader2 className="h-8 w-8 animate-spin text-amber-400" />
           <p className="text-sm text-muted-foreground font-mono">Loading The Box Office...</p>
         </div>
       </div>
@@ -408,12 +408,13 @@ export default function Home() {
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" style={{ zIndex: -1 }} />
+        <div className="marquee-strip w-full absolute top-0 left-0" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" style={{ zIndex: -1 }} />
         <div className="relative container py-6" style={{ zIndex: 50 }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/15 border border-blue-500/20">
-                <Radio className="h-5 w-5 text-blue-400" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/20">
+                <TicketIcon className="h-5 w-5 text-amber-400" />
               </div>
               <div>
                 <h1 className="text-xl font-bold tracking-tight text-foreground font-sans">
@@ -432,7 +433,7 @@ export default function Home() {
                   className={cn(
                     "flex items-center gap-1.5 h-9 rounded-lg border px-3 text-xs transition-all backdrop-blur-sm",
                     selectedBrand !== "all"
-                      ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-300"
+                      ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
                       : "border-border/50 bg-card/50 text-muted-foreground hover:text-foreground"
                   )}
                 >
@@ -467,11 +468,11 @@ export default function Home() {
                         className={cn(
                           "w-full flex items-center gap-2 rounded-md px-3 py-2 text-xs transition-colors",
                           selectedBrand === "all"
-                            ? "bg-blue-500/15 text-blue-300"
+                            ? "bg-amber-500/15 text-amber-300"
                             : "text-muted-foreground hover:bg-accent hover:text-foreground"
                         )}
                       >
-                        <span className="h-2 w-2 rounded-full bg-blue-400" />
+                        <span className="h-2 w-2 rounded-full bg-amber-400" />
                         All Brands
                         <span className="ml-auto font-mono text-[10px] opacity-60">
                           {tickets.length + tests.length}
@@ -488,11 +489,11 @@ export default function Home() {
                             className={cn(
                               "w-full flex items-center gap-2 rounded-md px-3 py-2 text-xs transition-colors",
                               selectedBrand === brand
-                                ? "bg-cyan-500/15 text-cyan-300"
+                                ? "bg-amber-500/15 text-amber-300"
                                 : "text-muted-foreground hover:bg-accent hover:text-foreground"
                             )}
                           >
-                            <span className="h-2 w-2 rounded-full bg-cyan-400/60" />
+                            <span className="h-2 w-2 rounded-full bg-amber-400/60" />
                             <span className="truncate">{brand}</span>
                             <span className="ml-auto font-mono text-[10px] opacity-60">
                               {ticketCount + testCount}
@@ -514,15 +515,15 @@ export default function Home() {
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   className={cn(
-                    "h-9 w-64 rounded-lg border bg-card/50 pl-9 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 backdrop-blur-sm transition-all",
+                    "h-9 w-64 rounded-lg border bg-card/50 pl-9 text-xs text-foreground placeholder:text-muted-foreground focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30 backdrop-blur-sm transition-all",
                     searchQuery
-                      ? "border-blue-500/40 pr-16"
+                      ? "border-amber-500/40 pr-16"
                       : "border-border/50 pr-3"
                   )}
                 />
                 {searchQuery && (
                   <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
-                    <span className="text-[10px] font-mono text-blue-400">
+                    <span className="text-[10px] font-mono text-amber-400">
                       {activeTab === "tickets" ? filteredTickets.length : filteredTests.length} found
                     </span>
                     <button
@@ -538,7 +539,7 @@ export default function Home() {
               {/* Add Ticket Button */}
               <button
                 onClick={() => setShowAddTicket(true)}
-                className="flex items-center gap-1.5 h-9 rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 text-xs text-blue-300 hover:bg-blue-500/20 transition-all backdrop-blur-sm"
+                className="flex items-center gap-1.5 h-9 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 text-xs text-amber-300 hover:bg-amber-500/20 transition-all backdrop-blur-sm"
                 title="Add ticket manually"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -548,7 +549,7 @@ export default function Home() {
               {/* Add Test Button */}
               <button
                 onClick={() => setShowAddTest(true)}
-                className="flex items-center gap-1.5 h-9 rounded-lg border border-purple-500/40 bg-purple-500/10 px-3 text-xs text-purple-300 hover:bg-purple-500/20 transition-all backdrop-blur-sm"
+                className="flex items-center gap-1.5 h-9 rounded-lg border border-rose-500/40 bg-rose-500/10 px-3 text-xs text-rose-300 hover:bg-rose-500/20 transition-all backdrop-blur-sm"
                 title="Add test manually"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -559,7 +560,7 @@ export default function Home() {
               <div className="relative group">
                 <button
                   onClick={activeTab === "tickets" ? handleExportTickets : handleExportTests}
-                  className="flex items-center gap-1.5 h-9 rounded-lg border border-border/50 bg-card/50 px-3 text-xs text-muted-foreground hover:text-foreground hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-300 transition-all backdrop-blur-sm"
+                  className="flex items-center gap-1.5 h-9 rounded-lg border border-border/50 bg-card/50 px-3 text-xs text-muted-foreground hover:text-foreground hover:border-amber-500/40 hover:bg-amber-500/10 hover:text-amber-300 transition-all backdrop-blur-sm"
                   title={`Export ${activeTab} as CSV`}
                 >
                   <Download className="h-3.5 w-3.5" />
@@ -585,7 +586,7 @@ export default function Home() {
               className="mt-3 flex items-center gap-2"
             >
               <span className="text-[11px] text-muted-foreground">Filtered by:</span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-0.5 text-[11px] font-medium text-cyan-300">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-[11px] font-medium text-amber-300">
                 <Building2 className="h-3 w-3" />
                 {selectedBrand}
                 <button
@@ -628,13 +629,13 @@ export default function Home() {
                   className={cn(
                     "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
                     activeTab === "tickets"
-                      ? "bg-blue-500/15 text-blue-300 shadow-[0_0_12px_oklch(0.65_0.2_260/0.15)]"
+                      ? "bg-amber-500/15 text-amber-300 shadow-[0_0_12px_oklch(0.80_0.16_85/0.15)]"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   <TicketIcon className="h-3.5 w-3.5" />
                   Support Tickets
-                  <span className="ml-1 rounded bg-blue-500/10 px-1.5 py-0.5 font-mono text-[10px]">
+                  <span className="ml-1 rounded bg-amber-500/10 px-1.5 py-0.5 font-mono text-[10px]">
                     {stats.tickets.total}
                   </span>
                 </button>
@@ -643,13 +644,13 @@ export default function Home() {
                   className={cn(
                     "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
                     activeTab === "tests"
-                      ? "bg-purple-500/15 text-purple-300 shadow-[0_0_12px_oklch(0.7_0.15_300/0.15)]"
+                      ? "bg-rose-500/15 text-rose-300 shadow-[0_0_12px_oklch(0.60_0.15_350/0.15)]"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
                   <Beaker className="h-3.5 w-3.5" />
                   Tests & Experiments
-                  <span className="ml-1 rounded bg-purple-500/10 px-1.5 py-0.5 font-mono text-[10px]">
+                  <span className="ml-1 rounded bg-rose-500/10 px-1.5 py-0.5 font-mono text-[10px]">
                     {stats.tests.total}
                   </span>
                 </button>
@@ -658,7 +659,7 @@ export default function Home() {
               {/* Export All button (secondary, inline with tabs) */}
               <button
                 onClick={handleExportAll}
-                className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] text-muted-foreground hover:text-emerald-300 transition-colors"
+                className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] text-muted-foreground hover:text-amber-300 transition-colors"
                 title="Export both tickets and tests as CSV"
               >
                 <Download className="h-3 w-3" />
@@ -679,7 +680,7 @@ export default function Home() {
                   className={cn(
                     "flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-medium transition-all",
                     (activeTab === "tickets" ? ticketFilter : testFilter) === opt.key
-                      ? "bg-blue-500/15 text-blue-300 border border-blue-500/30"
+                      ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
                       : "text-muted-foreground hover:text-foreground border border-transparent hover:border-border/50"
                   )}
                 >
@@ -709,9 +710,9 @@ export default function Home() {
             {/* Open Tasks */}
             <div>
               <div className="mb-3 flex items-center gap-2">
-                <ClipboardList className="h-4 w-4 text-blue-400" />
+                <ClipboardList className="h-4 w-4 text-amber-400" />
                 <h2 className="text-sm font-semibold text-foreground">Open Tasks</h2>
-                <span className="rounded bg-blue-500/10 px-1.5 py-0.5 font-mono text-[10px] text-blue-300">
+                <span className="rounded bg-amber-500/10 px-1.5 py-0.5 font-mono text-[10px] text-amber-300">
                   {stats.tasks.open}
                 </span>
               </div>
@@ -735,7 +736,7 @@ export default function Home() {
                         initial={{ width: 0 }}
                         animate={{ width: `${percentage}%` }}
                         transition={{ duration: 0.6, delay: 0.3 }}
-                        className="h-full rounded-full bg-blue-500/60"
+                        className="h-full rounded-full bg-amber-500/60"
                       />
                     </div>
                   </div>
@@ -788,8 +789,8 @@ export default function Home() {
           >
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/15 border border-purple-500/20">
-                  <Beaker className="h-4 w-4 text-purple-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-500/15 border border-rose-500/20">
+                  <Beaker className="h-4 w-4 text-rose-400" />
                 </div>
                 <h2 className="text-sm font-semibold text-foreground">Add Test / Experiment</h2>
               </div>
@@ -807,7 +808,7 @@ export default function Home() {
                     value={newTest.externalId}
                     onChange={e => setNewTest(prev => ({ ...prev, externalId: e.target.value }))}
                     placeholder="e.g. T262701881"
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-rose-500/50 focus:outline-none focus:ring-1 focus:ring-rose-500/30"
                   />
                 </div>
                 <div>
@@ -815,7 +816,7 @@ export default function Home() {
                   <select
                     value={newTest.testType}
                     onChange={e => setNewTest(prev => ({ ...prev, testType: e.target.value }))}
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground focus:border-rose-500/50 focus:outline-none focus:ring-1 focus:ring-rose-500/30"
                   >
                     <option value="Brand Lift">Brand Lift</option>
                     <option value="Conversion Lift">Conversion Lift</option>
@@ -835,7 +836,7 @@ export default function Home() {
                   value={newTest.subject}
                   onChange={e => setNewTest(prev => ({ ...prev, subject: e.target.value }))}
                   placeholder="e.g. Red Bull Brand Lift Study"
-                  className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                  className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-rose-500/50 focus:outline-none focus:ring-1 focus:ring-rose-500/30"
                 />
               </div>
 
@@ -847,7 +848,7 @@ export default function Home() {
                     value={newTest.brand}
                     onChange={e => setNewTest(prev => ({ ...prev, brand: e.target.value }))}
                     placeholder="e.g. Red Bull"
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-rose-500/50 focus:outline-none focus:ring-1 focus:ring-rose-500/30"
                   />
                 </div>
                 <div>
@@ -857,7 +858,7 @@ export default function Home() {
                     value={newTest.client}
                     onChange={e => setNewTest(prev => ({ ...prev, client: e.target.value }))}
                     placeholder="e.g. Lea Mishevski"
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-rose-500/50 focus:outline-none focus:ring-1 focus:ring-rose-500/30"
                   />
                 </div>
               </div>
@@ -870,7 +871,7 @@ export default function Home() {
                     value={newTest.clientEmail}
                     onChange={e => setNewTest(prev => ({ ...prev, clientEmail: e.target.value }))}
                     placeholder="e.g. lea@redbull.com"
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-rose-500/50 focus:outline-none focus:ring-1 focus:ring-rose-500/30"
                   />
                 </div>
                 <div>
@@ -880,7 +881,7 @@ export default function Home() {
                     value={newTest.gmailLink}
                     onChange={e => setNewTest(prev => ({ ...prev, gmailLink: e.target.value }))}
                     placeholder="URL to email or test"
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-rose-500/50 focus:outline-none focus:ring-1 focus:ring-rose-500/30"
                   />
                 </div>
               </div>
@@ -892,7 +893,7 @@ export default function Home() {
                   onChange={e => setNewTest(prev => ({ ...prev, snippet: e.target.value }))}
                   placeholder="Brief description or context..."
                   rows={2}
-                  className="w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30 resize-none"
+                  className="w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-rose-500/50 focus:outline-none focus:ring-1 focus:ring-rose-500/30 resize-none"
                 />
               </div>
             </div>
@@ -922,7 +923,7 @@ export default function Home() {
                   });
                 }}
                 disabled={createTestMutation.isPending}
-                className="h-9 rounded-lg bg-purple-500/20 border border-purple-500/40 px-4 text-xs font-medium text-purple-300 hover:bg-purple-500/30 transition-all disabled:opacity-50"
+                className="h-9 rounded-lg bg-rose-500/20 border border-rose-500/40 px-4 text-xs font-medium text-rose-300 hover:bg-rose-500/30 transition-all disabled:opacity-50"
               >
                 {createTestMutation.isPending ? "Adding..." : "Add Test"}
               </button>
@@ -943,8 +944,8 @@ export default function Home() {
           >
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/15 border border-blue-500/20">
-                  <Plus className="h-4 w-4 text-blue-400" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/20">
+                  <Plus className="h-4 w-4 text-amber-400" />
                 </div>
                 <h2 className="text-sm font-semibold text-foreground">Add Ticket Manually</h2>
               </div>
@@ -962,7 +963,7 @@ export default function Home() {
                     value={newTicket.externalId}
                     onChange={e => setNewTicket(prev => ({ ...prev, externalId: e.target.value }))}
                     placeholder="e.g. 1550422596515427"
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
                   />
                 </div>
                 <div>
@@ -970,7 +971,7 @@ export default function Home() {
                   <select
                     value={newTicket.priority}
                     onChange={e => setNewTicket(prev => ({ ...prev, priority: e.target.value }))}
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
                   >
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
@@ -987,7 +988,7 @@ export default function Home() {
                   value={newTicket.issue}
                   onChange={e => setNewTicket(prev => ({ ...prev, issue: e.target.value }))}
                   placeholder="e.g. Lost access to Ads Manager"
-                  className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                  className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
                 />
               </div>
 
@@ -999,7 +1000,7 @@ export default function Home() {
                     value={newTicket.client}
                     onChange={e => setNewTicket(prev => ({ ...prev, client: e.target.value }))}
                     placeholder="e.g. Justin Woods"
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
                   />
                 </div>
                 <div>
@@ -1009,7 +1010,7 @@ export default function Home() {
                     value={newTicket.clientCompany}
                     onChange={e => setNewTicket(prev => ({ ...prev, clientCompany: e.target.value }))}
                     placeholder="e.g. Harry's"
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
                   />
                 </div>
               </div>
@@ -1022,7 +1023,7 @@ export default function Home() {
                     value={newTicket.clientEmail}
                     onChange={e => setNewTicket(prev => ({ ...prev, clientEmail: e.target.value }))}
                     placeholder="e.g. justin@harrys.com"
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
                   />
                 </div>
                 <div>
@@ -1032,7 +1033,7 @@ export default function Home() {
                     value={newTicket.gmailLink}
                     onChange={e => setNewTicket(prev => ({ ...prev, gmailLink: e.target.value }))}
                     placeholder="URL to ticket or email"
-                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
                   />
                 </div>
               </div>
@@ -1044,7 +1045,7 @@ export default function Home() {
                   onChange={e => setNewTicket(prev => ({ ...prev, snippet: e.target.value }))}
                   placeholder="Brief description or context..."
                   rows={2}
-                  className="w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 resize-none"
+                  className="w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30 resize-none"
                 />
               </div>
             </div>
@@ -1075,7 +1076,7 @@ export default function Home() {
                   });
                 }}
                 disabled={createTicketMutation.isPending}
-                className="h-9 rounded-lg bg-blue-500/20 border border-blue-500/40 px-4 text-xs font-medium text-blue-300 hover:bg-blue-500/30 transition-all disabled:opacity-50"
+                className="h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 px-4 text-xs font-medium text-amber-300 hover:bg-amber-500/30 transition-all disabled:opacity-50"
               >
                 {createTicketMutation.isPending ? "Adding..." : "Add Ticket"}
               </button>
@@ -1113,7 +1114,7 @@ function getRecentActivity(tickets: TicketRow[], tests: TestRow[]) {
     items.push({
       text: `${prefix} #${shortId} — ${t.issue || t.subject || "Update"} (${t.clientCompany || "Internal"})`,
       date: t.lastActivity ? new Date(t.lastActivity).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "",
-      dotColor: t.status === "Resolved" ? "bg-emerald-400" : "bg-blue-400",
+      dotColor: t.status === "Resolved" ? "bg-emerald-400" : "bg-amber-400",
       sortDate: t.lastActivity || "",
     });
   });
@@ -1122,7 +1123,7 @@ function getRecentActivity(tickets: TicketRow[], tests: TestRow[]) {
     items.push({
       text: `${t.testType || "Test"} — ${t.subject || "Update"} (${t.brand || "Unknown"})`,
       date: t.lastActivity ? new Date(t.lastActivity).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "",
-      dotColor: "bg-purple-400",
+      dotColor: "bg-rose-400",
       sortDate: t.lastActivity || "",
     });
   });

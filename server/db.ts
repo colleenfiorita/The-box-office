@@ -166,6 +166,19 @@ export async function bulkUpsertTests(testList: InsertTest[]) {
   }
 }
 
+export async function clearAllTests() {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(tests);
+}
+
+export async function replaceAllTests(testList: InsertTest[]) {
+  await clearAllTests();
+  for (const test of testList) {
+    await upsertTest(test);
+  }
+}
+
 // ============ Task Queries ============
 
 export async function getAllTasks() {

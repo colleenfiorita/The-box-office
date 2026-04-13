@@ -20,8 +20,8 @@ export function TaskList({ tasks }: TaskListProps) {
           className="rounded-lg border border-border/40 bg-card/40 backdrop-blur-sm p-3"
         >
           <div className="flex items-start gap-2">
-            <div className="mt-0.5 rounded bg-blue-500/10 p-1.5">
-              <ClipboardList className="h-3.5 w-3.5 text-blue-400" />
+            <div className="mt-0.5 rounded bg-amber-500/10 p-1.5">
+              <ClipboardList className="h-3.5 w-3.5 text-amber-400" />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
@@ -29,7 +29,7 @@ export function TaskList({ tasks }: TaskListProps) {
                   href={task.taskLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-[10px] text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-0.5"
+                  className="font-mono text-[10px] text-amber-400 hover:text-amber-300 transition-colors inline-flex items-center gap-0.5"
                 >
                   {task.taskNumber}
                   <ExternalLink className="h-2.5 w-2.5" />
@@ -40,7 +40,7 @@ export function TaskList({ tasks }: TaskListProps) {
                 href={task.taskLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-medium text-foreground leading-snug hover:text-blue-300 transition-colors block"
+                className="text-xs font-medium text-foreground leading-snug hover:text-amber-300 transition-colors block"
               >
                 {task.title}
               </a>

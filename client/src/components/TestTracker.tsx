@@ -13,15 +13,15 @@ interface TestTrackerProps {
 type SortField = "subject" | "brand" | "testType" | "status" | "client" | "lastActivity";
 
 const testTypeColors: Record<string, string> = {
-  "A/B Test": "border-l-blue-400",
-  "Beta Test": "border-l-purple-400",
+  "A/B Test": "border-l-amber-400",
+  "Beta Test": "border-l-rose-400",
   "pLTV Test": "border-l-emerald-400",
-  "Upper Funnel Test": "border-l-cyan-400",
+  "Upper Funnel Test": "border-l-yellow-400",
   "Lift Study": "border-l-amber-400",
   "Brand Lift": "border-l-amber-400",
   "Conversion Lift": "border-l-orange-400",
   "Test": "border-l-slate-400",
-  "Experiment": "border-l-pink-400"
+  "Experiment": "border-l-rose-400"
 };
 
 /** Extract a readable brand/company name from brand field or email domain */
@@ -36,7 +36,7 @@ function getBrandFromTest(test: Test): string {
       return name.charAt(0).toUpperCase() + name.slice(1);
     }
   }
-  return "—";
+  return "\u2014";
 }
 
 export function TestTracker({ tests, filter }: TestTrackerProps) {
@@ -50,6 +50,8 @@ export function TestTracker({ tests, filter }: TestTrackerProps) {
     if (filter === "all") return true;
     if (filter === "active") return t.status === "Active";
     if (filter === "completed") return t.status === "Completed";
+    if (filter === "brandlift") return t.testType === "Brand Lift";
+    if (filter === "convlift") return t.testType === "Conversion Lift";
     if (filter === "ab") return t.testType === "A/B Test";
     if (filter === "beta") return t.testType === "Beta Test";
     if (filter === "pltv") return t.testType === "pLTV Test";
@@ -95,9 +97,9 @@ export function TestTracker({ tests, filter }: TestTrackerProps) {
       return <ArrowUpDown className="ml-0.5 inline h-3 w-3 opacity-30" />;
     }
     return sortDir === "desc" ? (
-      <ChevronDown className="ml-0.5 inline h-3 w-3 text-purple-400" />
+      <ChevronDown className="ml-0.5 inline h-3 w-3 text-amber-400" />
     ) : (
-      <ChevronUp className="ml-0.5 inline h-3 w-3 text-purple-400" />
+      <ChevronUp className="ml-0.5 inline h-3 w-3 text-amber-400" />
     );
   };
 
@@ -152,13 +154,13 @@ export function TestTracker({ tests, filter }: TestTrackerProps) {
                   <span className="text-foreground">{test.subject}</span>
                 </div>
                 <div className="truncate">
-                  {brand !== "—" ? (
-                    <span className="inline-flex items-center gap-1 text-xs text-cyan-300/80">
-                      <Building2 className="h-3 w-3 shrink-0 text-cyan-400/60" />
+                  {brand !== "\u2014" ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-amber-300/80">
+                      <Building2 className="h-3 w-3 shrink-0 text-amber-400/60" />
                       <span className="truncate">{brand}</span>
                     </span>
                   ) : (
-                    <span className="text-xs text-muted-foreground">—</span>
+                    <span className="text-xs text-muted-foreground">\u2014</span>
                   )}
                 </div>
                 <div>
@@ -172,10 +174,10 @@ export function TestTracker({ tests, filter }: TestTrackerProps) {
                 </div>
                 <span className="truncate text-muted-foreground text-xs flex items-center gap-1">
                   {test.client && <Users className="h-3 w-3 shrink-0" />}
-                  {test.client ?? "—"}
+                  {test.client ?? "\u2014"}
                 </span>
                 <span className="font-mono text-xs text-muted-foreground">
-                  {test.lastActivity ? new Date(test.lastActivity).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}
+                  {test.lastActivity ? new Date(test.lastActivity).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "\u2014"}
                 </span>
               </button>
 
@@ -195,8 +197,8 @@ export function TestTracker({ tests, filter }: TestTrackerProps) {
                       </div>
                       <div>
                         <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Brand / Company</p>
-                        <p className="text-cyan-300 mt-0.5 inline-flex items-center gap-1">
-                          <Building2 className="h-3 w-3 text-cyan-400/70" />
+                        <p className="text-amber-300 mt-0.5 inline-flex items-center gap-1">
+                          <Building2 className="h-3 w-3 text-amber-400/70" />
                           {brand}
                         </p>
                       </div>
@@ -207,7 +209,7 @@ export function TestTracker({ tests, filter }: TestTrackerProps) {
                         <a
                           href={`mailto:${test.clientEmail}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="mt-0.5 inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
+                          className="mt-0.5 inline-flex items-center gap-1 text-amber-400 hover:text-amber-300 transition-colors"
                         >
                           <Mail className="h-3 w-3" />
                           {test.clientEmail}
@@ -228,17 +230,17 @@ export function TestTracker({ tests, filter }: TestTrackerProps) {
                       <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Summary</p>
                       <p className="text-muted-foreground mt-0.5 leading-relaxed">{test.snippet}</p>
                     </div>
-                    {/* Open in Gmail link */}
+                    {/* Open Task link */}
                     <div className="pt-2 border-t border-border/20">
                       <a
                         href={test.gmailLink}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center gap-1.5 rounded-md bg-purple-500/10 border border-purple-500/20 px-3 py-1.5 text-[11px] font-medium text-purple-300 hover:bg-purple-500/20 hover:text-purple-200 transition-all"
+                        className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 text-[11px] font-medium text-amber-300 hover:bg-amber-500/20 hover:text-amber-200 transition-all"
                       >
                         <ExternalLink className="h-3 w-3" />
-                        Open in Gmail
+                        Open Task
                       </a>
                     </div>
                   </div>

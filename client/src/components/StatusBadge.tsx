@@ -7,64 +7,64 @@ interface StatusBadgeProps {
 
 const statusConfig: Record<string, { color: string; bg: string; glow: string; dot: string }> = {
   Open: {
-    color: "text-blue-300",
-    bg: "bg-blue-500/10",
-    glow: "shadow-[0_0_8px_oklch(0.65_0.2_260/0.3)]",
-    dot: "bg-blue-400"
-  },
-  Pending: {
     color: "text-amber-300",
     bg: "bg-amber-500/10",
-    glow: "shadow-[0_0_8px_oklch(0.78_0.18_75/0.3)]",
+    glow: "shadow-[0_0_8px_oklch(0.80_0.16_85/0.3)]",
     dot: "bg-amber-400"
+  },
+  Pending: {
+    color: "text-yellow-300",
+    bg: "bg-yellow-500/10",
+    glow: "shadow-[0_0_8px_oklch(0.78_0.16_75/0.3)]",
+    dot: "bg-yellow-400"
   },
   Resolved: {
     color: "text-emerald-300",
     bg: "bg-emerald-500/10",
-    glow: "shadow-[0_0_8px_oklch(0.72_0.2_155/0.3)]",
+    glow: "shadow-[0_0_8px_oklch(0.72_0.18_155/0.3)]",
     dot: "bg-emerald-400"
   },
   Escalated: {
     color: "text-red-300",
     bg: "bg-red-500/10",
-    glow: "shadow-[0_0_8px_oklch(0.65_0.22_25/0.3)]",
+    glow: "shadow-[0_0_8px_oklch(0.55_0.22_25/0.3)]",
     dot: "bg-red-400"
   },
   Active: {
-    color: "text-blue-300",
-    bg: "bg-blue-500/10",
-    glow: "shadow-[0_0_8px_oklch(0.65_0.2_260/0.3)]",
-    dot: "bg-blue-400"
+    color: "text-amber-300",
+    bg: "bg-amber-500/10",
+    glow: "shadow-[0_0_8px_oklch(0.80_0.16_85/0.3)]",
+    dot: "bg-amber-400"
   },
   Completed: {
     color: "text-emerald-300",
     bg: "bg-emerald-500/10",
-    glow: "shadow-[0_0_8px_oklch(0.72_0.2_155/0.3)]",
+    glow: "shadow-[0_0_8px_oklch(0.72_0.18_155/0.3)]",
     dot: "bg-emerald-400"
   },
   "Pending Setup": {
-    color: "text-amber-300",
-    bg: "bg-amber-500/10",
-    glow: "shadow-[0_0_8px_oklch(0.78_0.18_75/0.3)]",
-    dot: "bg-amber-400"
+    color: "text-yellow-300",
+    bg: "bg-yellow-500/10",
+    glow: "shadow-[0_0_8px_oklch(0.78_0.16_75/0.3)]",
+    dot: "bg-yellow-400"
   },
   "In Review": {
-    color: "text-purple-300",
-    bg: "bg-purple-500/10",
-    glow: "shadow-[0_0_8px_oklch(0.7_0.15_300/0.3)]",
-    dot: "bg-purple-400"
+    color: "text-rose-300",
+    bg: "bg-rose-500/10",
+    glow: "shadow-[0_0_8px_oklch(0.60_0.15_350/0.3)]",
+    dot: "bg-rose-400"
   },
   "In Progress": {
-    color: "text-blue-300",
-    bg: "bg-blue-500/10",
-    glow: "shadow-[0_0_8px_oklch(0.65_0.2_260/0.3)]",
-    dot: "bg-blue-400"
-  },
-  "No Progress": {
     color: "text-amber-300",
     bg: "bg-amber-500/10",
-    glow: "shadow-[0_0_8px_oklch(0.78_0.18_75/0.3)]",
+    glow: "shadow-[0_0_8px_oklch(0.80_0.16_85/0.3)]",
     dot: "bg-amber-400"
+  },
+  "No Progress": {
+    color: "text-yellow-300",
+    bg: "bg-yellow-500/10",
+    glow: "shadow-[0_0_8px_oklch(0.78_0.16_75/0.3)]",
+    dot: "bg-yellow-400"
   }
 };
 
@@ -98,7 +98,7 @@ export function PriorityBadge({ priority }: { priority: string }) {
   const config: Record<string, string> = {
     Critical: "text-red-400 bg-red-500/10",
     High: "text-amber-400 bg-amber-500/10",
-    Medium: "text-blue-300 bg-blue-500/10",
+    Medium: "text-yellow-300 bg-yellow-500/10",
     Low: "text-slate-400 bg-slate-500/10"
   };
 

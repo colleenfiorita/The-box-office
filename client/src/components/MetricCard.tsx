@@ -13,39 +13,39 @@ interface MetricCardProps {
 
 const colorMap = {
   blue: {
-    iconBg: "bg-blue-500/10",
-    iconColor: "text-blue-400",
-    valueColor: "text-blue-300",
-    border: "border-blue-500/20",
-    glow: "shadow-[0_0_30px_oklch(0.65_0.2_260/0.08)]"
+    iconBg: "bg-amber-500/10",
+    iconColor: "text-amber-400",
+    valueColor: "text-amber-300",
+    border: "border-amber-500/20",
+    glow: "shadow-[0_0_30px_oklch(0.80_0.16_85/0.08)]"
   },
   green: {
     iconBg: "bg-emerald-500/10",
     iconColor: "text-emerald-400",
     valueColor: "text-emerald-300",
     border: "border-emerald-500/20",
-    glow: "shadow-[0_0_30px_oklch(0.72_0.2_155/0.08)]"
+    glow: "shadow-[0_0_30px_oklch(0.72_0.18_155/0.08)]"
   },
   amber: {
-    iconBg: "bg-amber-500/10",
-    iconColor: "text-amber-400",
-    valueColor: "text-amber-300",
-    border: "border-amber-500/20",
-    glow: "shadow-[0_0_30px_oklch(0.78_0.18_75/0.08)]"
+    iconBg: "bg-yellow-500/10",
+    iconColor: "text-yellow-400",
+    valueColor: "text-yellow-300",
+    border: "border-yellow-500/20",
+    glow: "shadow-[0_0_30px_oklch(0.78_0.16_75/0.08)]"
   },
   red: {
     iconBg: "bg-red-500/10",
     iconColor: "text-red-400",
     valueColor: "text-red-300",
     border: "border-red-500/20",
-    glow: "shadow-[0_0_30px_oklch(0.65_0.22_25/0.08)]"
+    glow: "shadow-[0_0_30px_oklch(0.55_0.22_25/0.08)]"
   },
   purple: {
-    iconBg: "bg-purple-500/10",
-    iconColor: "text-purple-400",
-    valueColor: "text-purple-300",
-    border: "border-purple-500/20",
-    glow: "shadow-[0_0_30px_oklch(0.7_0.15_300/0.08)]"
+    iconBg: "bg-rose-500/10",
+    iconColor: "text-rose-400",
+    valueColor: "text-rose-300",
+    border: "border-rose-500/20",
+    glow: "shadow-[0_0_30px_oklch(0.60_0.15_350/0.08)]"
   }
 };
 

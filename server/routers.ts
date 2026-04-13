@@ -12,6 +12,7 @@ import {
   bulkUpsertTickets,
   bulkUpsertTests,
   bulkUpsertTasks,
+  replaceAllTests,
   logSync,
 } from "./db";
 
@@ -103,6 +104,34 @@ export const appRouter = router({
           messageCount: 1,
         });
         return { success: true };
+      }),
+
+    /** Replace all tests — clears existing and inserts new ones */
+    replaceTests: publicProcedure
+      .input(
+        z.object({
+          tests: z.array(
+            z.object({
+              externalId: z.string(),
+              subject: z.string().optional(),
+              testType: z.string().optional(),
+              status: z.string().default("Active"),
+              brand: z.string().optional(),
+              client: z.string().optional(),
+              clientEmail: z.string().optional(),
+              firstDate: z.string().optional(),
+              lastActivity: z.string().optional(),
+              messageCount: z.number().optional(),
+              snippet: z.string().optional(),
+              gmailLink: z.string().optional(),
+            })
+          ),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await replaceAllTests(input.tests);
+        await logSync("replace-tests", input.tests.length, "success");
+        return { success: true, testsReplaced: input.tests.length };
       }),
 
     /** Seed / sync data — accepts arrays of tickets, tests, tasks */

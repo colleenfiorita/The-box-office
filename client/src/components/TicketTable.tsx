@@ -25,7 +25,7 @@ function getBrandFromTicket(ticket: Ticket): string {
     }
   }
   if (ticket.clientCompany === "Internal") return "Meta (Internal)";
-  return "—";
+  return "\u2014";
 }
 
 export function TicketTable({ tickets, filter }: TicketTableProps) {
@@ -87,9 +87,9 @@ export function TicketTable({ tickets, filter }: TicketTableProps) {
       return <ArrowUpDown className="ml-0.5 inline h-3 w-3 opacity-30" />;
     }
     return sortDir === "desc" ? (
-      <ChevronDown className="ml-0.5 inline h-3 w-3 text-blue-400" />
+      <ChevronDown className="ml-0.5 inline h-3 w-3 text-amber-400" />
     ) : (
-      <ChevronUp className="ml-0.5 inline h-3 w-3 text-blue-400" />
+      <ChevronUp className="ml-0.5 inline h-3 w-3 text-amber-400" />
     );
   };
 
@@ -148,8 +148,8 @@ export function TicketTable({ tickets, filter }: TicketTableProps) {
                   {ticket.client}
                 </span>
                 <div className="truncate">
-                  <span className="inline-flex items-center gap-1 text-xs text-cyan-300/80">
-                    <Building2 className="h-3 w-3 shrink-0 text-cyan-400/60" />
+                  <span className="inline-flex items-center gap-1 text-xs text-amber-300/80">
+                    <Building2 className="h-3 w-3 shrink-0 text-amber-400/60" />
                     <span className="truncate">{brand}</span>
                   </span>
                 </div>
@@ -191,7 +191,7 @@ export function TicketTable({ tickets, filter }: TicketTableProps) {
                         <a
                           href={`mailto:${ticket.clientEmail}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="mt-0.5 inline-flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
+                          className="mt-0.5 inline-flex items-center gap-1 text-amber-400 hover:text-amber-300 transition-colors"
                         >
                           <Mail className="h-3 w-3" />
                           {ticket.clientEmail}
@@ -200,8 +200,8 @@ export function TicketTable({ tickets, filter }: TicketTableProps) {
                     </div>
                     <div>
                       <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Brand / Company</p>
-                      <p className="text-cyan-300 inline-flex items-center gap-1.5">
-                        <Building2 className="h-3.5 w-3.5 text-cyan-400/70" />
+                      <p className="text-amber-300 inline-flex items-center gap-1.5">
+                        <Building2 className="h-3.5 w-3.5 text-amber-400/70" />
                         {brand}
                       </p>
                       {ticket.clientCompany && ticket.clientCompany !== brand && (
@@ -231,7 +231,7 @@ export function TicketTable({ tickets, filter }: TicketTableProps) {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center gap-1.5 rounded-md bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 text-[11px] font-medium text-blue-300 hover:bg-blue-500/20 hover:text-blue-200 transition-all"
+                        className="inline-flex items-center gap-1.5 rounded-md bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 text-[11px] font-medium text-amber-300 hover:bg-amber-500/20 hover:text-amber-200 transition-all"
                       >
                         <ExternalLink className="h-3 w-3" />
                         Open in Gmail
