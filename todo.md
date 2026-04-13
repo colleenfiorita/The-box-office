@@ -31,3 +31,6 @@
 - [x] Bug: Tests/experiments data contains inaccurate entries (e.g., Momofuku listed with experiment that doesn't exist) — audit and clean up
 - [x] Add manual "Add Test" button and form to dashboard
 - [x] Bug: Sync date stuck on Apr 10 — trigger fresh sync and fix sync date display
+- [x] Enhanced search bar with clear button and result count indicator
+- [x] Column sorting on ticket table (Issue, Client, Brand, Status, Priority, Messages, Updated)
+- [x] Column sorting on test tracker (Subject, Brand, Type, Status, Client, Updated)

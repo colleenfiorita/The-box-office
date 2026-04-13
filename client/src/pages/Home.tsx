@@ -513,8 +513,26 @@ export default function Home() {
                   placeholder="Search tickets, tests, clients..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="h-9 w-56 rounded-lg border border-border/50 bg-card/50 pl-9 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 backdrop-blur-sm"
+                  className={cn(
+                    "h-9 w-64 rounded-lg border bg-card/50 pl-9 text-xs text-foreground placeholder:text-muted-foreground focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 backdrop-blur-sm transition-all",
+                    searchQuery
+                      ? "border-blue-500/40 pr-16"
+                      : "border-border/50 pr-3"
+                  )}
                 />
+                {searchQuery && (
+                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                    <span className="text-[10px] font-mono text-blue-400">
+                      {activeTab === "tickets" ? filteredTickets.length : filteredTests.length} found
+                    </span>
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="flex h-5 w-5 items-center justify-center rounded hover:bg-accent/50 text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Add Ticket Button */}

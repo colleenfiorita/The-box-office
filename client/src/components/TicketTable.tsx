@@ -1,7 +1,7 @@
 import { StatusBadge, PriorityBadge } from "@/components/StatusBadge";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { Building2, ChevronDown, ChevronUp, ExternalLink, Mail, MessageSquare } from "lucide-react";
+import { ArrowUpDown, Building2, ChevronDown, ChevronUp, ExternalLink, Mail, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import type { Ticket } from "@/data/dashboardData";
 
@@ -9,6 +9,8 @@ interface TicketTableProps {
   tickets: Ticket[];
   filter: string;
 }
+
+type SortField = "issue" | "client" | "brand" | "status" | "priority" | "messageCount" | "lastActivity";
 
 /** Extract a readable brand/company name from clientCompany or email domain */
 function getBrandFromTicket(ticket: Ticket): string {
@@ -18,7 +20,6 @@ function getBrandFromTicket(ticket: Ticket): string {
   if (ticket.clientEmail) {
     const domain = ticket.clientEmail.split("@")[1];
     if (domain && !domain.includes("meta.com") && !domain.includes("gmail.com")) {
-      // Clean up domain: remove .com/.co/.io etc, capitalize
       const name = domain.split(".")[0];
       return name.charAt(0).toUpperCase() + name.slice(1);
     }
@@ -29,11 +30,11 @@ function getBrandFromTicket(ticket: Ticket): string {
 
 export function TicketTable({ tickets, filter }: TicketTableProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [sortField, setSortField] = useState<"lastActivity" | "priority" | "status" | "brand">("lastActivity");
+  const [sortField, setSortField] = useState<SortField>("lastActivity");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
-  const priorityOrder = { Critical: 0, High: 1, Medium: 2, Low: 3 };
-  const statusOrder = { Open: 0, Pending: 1, Escalated: 2, Resolved: 3 };
+  const priorityOrder: Record<string, number> = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+  const statusOrder: Record<string, number> = { Open: 0, Pending: 1, Escalated: 2, Resolved: 3 };
 
   const filtered = tickets.filter(t => {
     if (filter === "all") return true;
@@ -46,19 +47,33 @@ export function TicketTable({ tickets, filter }: TicketTableProps) {
 
   const sorted = [...filtered].sort((a, b) => {
     let cmp = 0;
-    if (sortField === "lastActivity") {
-      cmp = new Date(a.lastActivity).getTime() - new Date(b.lastActivity).getTime();
-    } else if (sortField === "priority") {
-      cmp = priorityOrder[a.priority] - priorityOrder[b.priority];
-    } else if (sortField === "status") {
-      cmp = statusOrder[a.status] - statusOrder[b.status];
-    } else if (sortField === "brand") {
-      cmp = getBrandFromTicket(a).localeCompare(getBrandFromTicket(b));
+    switch (sortField) {
+      case "issue":
+        cmp = (a.issue ?? "").localeCompare(b.issue ?? "");
+        break;
+      case "client":
+        cmp = (a.client ?? "").localeCompare(b.client ?? "");
+        break;
+      case "brand":
+        cmp = getBrandFromTicket(a).localeCompare(getBrandFromTicket(b));
+        break;
+      case "status":
+        cmp = (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
+        break;
+      case "priority":
+        cmp = (priorityOrder[a.priority] ?? 99) - (priorityOrder[b.priority] ?? 99);
+        break;
+      case "messageCount":
+        cmp = (a.messageCount ?? 0) - (b.messageCount ?? 0);
+        break;
+      case "lastActivity":
+        cmp = new Date(a.lastActivity).getTime() - new Date(b.lastActivity).getTime();
+        break;
     }
     return sortDir === "desc" ? -cmp : cmp;
   });
 
-  const handleSort = (field: typeof sortField) => {
+  const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDir(d => (d === "asc" ? "desc" : "asc"));
     } else {
@@ -67,12 +82,14 @@ export function TicketTable({ tickets, filter }: TicketTableProps) {
     }
   };
 
-  const SortIcon = ({ field }: { field: typeof sortField }) => {
-    if (sortField !== field) return null;
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="ml-0.5 inline h-3 w-3 opacity-30" />;
+    }
     return sortDir === "desc" ? (
-      <ChevronDown className="ml-0.5 inline h-3 w-3" />
+      <ChevronDown className="ml-0.5 inline h-3 w-3 text-blue-400" />
     ) : (
-      <ChevronUp className="ml-0.5 inline h-3 w-3" />
+      <ChevronUp className="ml-0.5 inline h-3 w-3 text-blue-400" />
     );
   };
 
@@ -80,19 +97,25 @@ export function TicketTable({ tickets, filter }: TicketTableProps) {
     <div className="overflow-hidden rounded-lg border border-border/50 bg-card/50 backdrop-blur-sm">
       {/* Table header */}
       <div className="grid grid-cols-[1fr_120px_110px_90px_80px_60px_80px] gap-2 border-b border-border/50 px-4 py-2.5 text-[10px] font-mono uppercase tracking-widest text-muted-foreground">
-        <span>Issue</span>
-        <span>Client</span>
-        <button onClick={() => handleSort("brand")} className="text-left hover:text-foreground transition-colors">
+        <button onClick={() => handleSort("issue")} className="text-left hover:text-foreground transition-colors flex items-center">
+          Issue <SortIcon field="issue" />
+        </button>
+        <button onClick={() => handleSort("client")} className="text-left hover:text-foreground transition-colors flex items-center">
+          Client <SortIcon field="client" />
+        </button>
+        <button onClick={() => handleSort("brand")} className="text-left hover:text-foreground transition-colors flex items-center">
           Brand <SortIcon field="brand" />
         </button>
-        <button onClick={() => handleSort("status")} className="text-left hover:text-foreground transition-colors">
+        <button onClick={() => handleSort("status")} className="text-left hover:text-foreground transition-colors flex items-center">
           Status <SortIcon field="status" />
         </button>
-        <button onClick={() => handleSort("priority")} className="text-left hover:text-foreground transition-colors">
+        <button onClick={() => handleSort("priority")} className="text-left hover:text-foreground transition-colors flex items-center">
           Priority <SortIcon field="priority" />
         </button>
-        <span className="text-center">Msgs</span>
-        <button onClick={() => handleSort("lastActivity")} className="text-left hover:text-foreground transition-colors">
+        <button onClick={() => handleSort("messageCount")} className="text-center hover:text-foreground transition-colors flex items-center justify-center">
+          Msgs <SortIcon field="messageCount" />
+        </button>
+        <button onClick={() => handleSort("lastActivity")} className="text-left hover:text-foreground transition-colors flex items-center">
           Updated <SortIcon field="lastActivity" />
         </button>
       </div>
