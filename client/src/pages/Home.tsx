@@ -236,6 +236,19 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"tickets" | "tests">("tickets");
 
+  // ---- Manual Test Entry ----
+  const [showAddTest, setShowAddTest] = useState(false);
+  const [newTest, setNewTest] = useState({
+    externalId: "",
+    subject: "",
+    testType: "Brand Lift",
+    brand: "",
+    client: "",
+    clientEmail: "",
+    snippet: "",
+    gmailLink: "",
+  });
+
   // ---- Manual Ticket Entry ----
   const [showAddTicket, setShowAddTicket] = useState(false);
   const [newTicket, setNewTicket] = useState({
@@ -261,6 +274,18 @@ export default function Home() {
     },
   });
   const trpcUtils = trpc.useUtils();
+
+  const createTestMutation = trpc.dashboard.createTest.useMutation({
+    onSuccess: () => {
+      toast.success("Test added successfully!");
+      setShowAddTest(false);
+      setNewTest({ externalId: "", subject: "", testType: "Brand Lift", brand: "", client: "", clientEmail: "", snippet: "", gmailLink: "" });
+      trpcUtils.dashboard.tests.invalidate();
+    },
+    onError: (err) => {
+      toast.error("Failed to add test: " + err.message);
+    },
+  });
 
   // Filter by search (applied on top of brand filter)
   const filteredTickets = useMemo(() => {
@@ -502,6 +527,16 @@ export default function Home() {
                 <span className="hidden sm:inline">Add Ticket</span>
               </button>
 
+              {/* Add Test Button */}
+              <button
+                onClick={() => setShowAddTest(true)}
+                className="flex items-center gap-1.5 h-9 rounded-lg border border-purple-500/40 bg-purple-500/10 px-3 text-xs text-purple-300 hover:bg-purple-500/20 transition-all backdrop-blur-sm"
+                title="Add test manually"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Add Test</span>
+              </button>
+
               {/* CSV Export Button */}
               <div className="relative group">
                 <button
@@ -723,6 +758,161 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {/* Manual Test Entry Modal */}
+      {showAddTest && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowAddTest(false)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.15 }}
+            className="w-full max-w-lg rounded-xl border border-border/60 bg-card p-6 shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/15 border border-purple-500/20">
+                  <Beaker className="h-4 w-4 text-purple-400" />
+                </div>
+                <h2 className="text-sm font-semibold text-foreground">Add Test / Experiment</h2>
+              </div>
+              <button onClick={() => setShowAddTest(false)} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Test ID *</label>
+                  <input
+                    type="text"
+                    value={newTest.externalId}
+                    onChange={e => setNewTest(prev => ({ ...prev, externalId: e.target.value }))}
+                    placeholder="e.g. T262701881"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Test Type</label>
+                  <select
+                    value={newTest.testType}
+                    onChange={e => setNewTest(prev => ({ ...prev, testType: e.target.value }))}
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                  >
+                    <option value="Brand Lift">Brand Lift</option>
+                    <option value="Conversion Lift">Conversion Lift</option>
+                    <option value="A/B Test">A/B Test</option>
+                    <option value="pLTV Test">pLTV Test</option>
+                    <option value="Beta Test">Beta Test</option>
+                    <option value="Upper Funnel Test">Upper Funnel Test</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-muted-foreground mb-1">Subject / Name *</label>
+                <input
+                  type="text"
+                  value={newTest.subject}
+                  onChange={e => setNewTest(prev => ({ ...prev, subject: e.target.value }))}
+                  placeholder="e.g. Red Bull Brand Lift Study"
+                  className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Brand</label>
+                  <input
+                    type="text"
+                    value={newTest.brand}
+                    onChange={e => setNewTest(prev => ({ ...prev, brand: e.target.value }))}
+                    placeholder="e.g. Red Bull"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Client Contact</label>
+                  <input
+                    type="text"
+                    value={newTest.client}
+                    onChange={e => setNewTest(prev => ({ ...prev, client: e.target.value }))}
+                    placeholder="e.g. Lea Mishevski"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Client Email</label>
+                  <input
+                    type="text"
+                    value={newTest.clientEmail}
+                    onChange={e => setNewTest(prev => ({ ...prev, clientEmail: e.target.value }))}
+                    placeholder="e.g. lea@redbull.com"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-muted-foreground mb-1">Link (optional)</label>
+                  <input
+                    type="text"
+                    value={newTest.gmailLink}
+                    onChange={e => setNewTest(prev => ({ ...prev, gmailLink: e.target.value }))}
+                    placeholder="URL to email or test"
+                    className="w-full h-9 rounded-lg border border-border/50 bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-medium text-muted-foreground mb-1">Notes (optional)</label>
+                <textarea
+                  value={newTest.snippet}
+                  onChange={e => setNewTest(prev => ({ ...prev, snippet: e.target.value }))}
+                  placeholder="Brief description or context..."
+                  rows={2}
+                  className="w-full rounded-lg border border-border/50 bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-purple-500/50 focus:outline-none focus:ring-1 focus:ring-purple-500/30 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 mt-5">
+              <button
+                onClick={() => setShowAddTest(false)}
+                className="h-9 rounded-lg border border-border/50 px-4 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (!newTest.externalId || !newTest.subject) {
+                    toast.error("Test ID and Subject are required");
+                    return;
+                  }
+                  createTestMutation.mutate({
+                    externalId: newTest.externalId.startsWith("T") ? newTest.externalId : `T${newTest.externalId}`,
+                    subject: newTest.subject,
+                    testType: newTest.testType,
+                    brand: newTest.brand || undefined,
+                    client: newTest.client || undefined,
+                    clientEmail: newTest.clientEmail || undefined,
+                    snippet: newTest.snippet || undefined,
+                    gmailLink: newTest.gmailLink || undefined,
+                  });
+                }}
+                disabled={createTestMutation.isPending}
+                className="h-9 rounded-lg bg-purple-500/20 border border-purple-500/40 px-4 text-xs font-medium text-purple-300 hover:bg-purple-500/30 transition-all disabled:opacity-50"
+              >
+                {createTestMutation.isPending ? "Adding..." : "Add Test"}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {/* Manual Ticket Entry Modal */}
       {showAddTicket && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowAddTicket(false)}>

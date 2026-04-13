@@ -79,6 +79,32 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    /** Create a single test manually */
+    createTest: publicProcedure
+      .input(
+        z.object({
+          externalId: z.string(),
+          subject: z.string(),
+          testType: z.string().default("Brand Lift"),
+          status: z.string().default("Active"),
+          brand: z.string().optional(),
+          client: z.string().optional(),
+          clientEmail: z.string().optional(),
+          snippet: z.string().optional(),
+          gmailLink: z.string().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { upsertTest } = await import("./db");
+        await upsertTest({
+          ...input,
+          firstDate: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+          lastActivity: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+          messageCount: 1,
+        });
+        return { success: true };
+      }),
+
     /** Seed / sync data — accepts arrays of tickets, tests, tasks */
     sync: publicProcedure
       .input(

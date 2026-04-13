@@ -28,3 +28,6 @@
 - [x] Bug: Brand dropdown renders behind metric cards (z-index issue)
 - [x] Bug: Missing Harry's ticket filed today — not showing in dashboard
 - [x] Add manual ticket entry form to dashboard for tickets that auto-sync misses
+- [x] Bug: Tests/experiments data contains inaccurate entries (e.g., Momofuku listed with experiment that doesn't exist) — audit and clean up
+- [x] Add manual "Add Test" button and form to dashboard
+- [x] Bug: Sync date stuck on Apr 10 — trigger fresh sync and fix sync date display
